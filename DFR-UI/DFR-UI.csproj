@@ -90,8 +90,12 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(ProjectDir)\openvr_api.dll $(TargetDir)\
+    <PostBuildEvent>copy $(ProjectDir)\openvr_api.dll $(TargetDir)
 
+if not defined PFX_PASSWORD goto skip_signing
+if not defined PFX_NAME set PFX_NAME=selfsigncert
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/Varjo-Compat-PVR-DFR" /f $(SolutionDir)\signing\%25PFX_NAME%25.pfx /p "%25PFX_PASSWORD%25" /v $(TargetPath)
+:skip_signing
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

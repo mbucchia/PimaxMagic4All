@@ -1,0 +1,64 @@
+name: MSBuild
+
+on:
+  push:
+    branches:
+    - main
+    - release/*
+    tags:
+    - '[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+    - main
+    - release/*
+  workflow_dispatch:
+
+env:
+  SOLUTION_FILE_PATH: pvr-emu.sln
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    environment: build-and-sign
+
+    steps:
+    - name: Checkout project
+      uses: actions/checkout@v2
+
+    - name: Checkout submodules
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: git submodule update --init
+
+    - name: Setup DevEnv
+      uses: seanmiddleditch/gha-setup-vsdevenv@v4
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      env:
+        PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
+        PFX_NAME: "comodo"
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: |
+        # Need to build vdproj. We must invoke this tool from inside its own folder.
+        $DisableOutOfProcBuild=$(vswhere -latest -find  **\DisableOutOfProcBuild.exe)
+        Push-Location $(Split-Path $DisableOutOfProcBuild)
+        & $DisableOutOfProcBuild
+        Pop-Location
+        
+        # Finally, we may build the project.
+        devenv.com ${{env.SOLUTION_FILE_PATH}} /Build "${{env.BUILD_CONFIGURATION}}|x64"
+
+    - name: Publish
+      uses: actions/upload-artifact@v2
+      with:
+        name: DFR-UI
+        path: |
+          bin/Release/DFR-UI.exe
+          bin/Release/DFR-UI.exe.config
+          bin/Release/openvr_api.dll
+          bin/Release/libpvrclient64.dll
+          bin/Release/VarjoLib.dll
