@@ -86,16 +86,15 @@ namespace utils {
         }
 
         HMODULE handle;
-        assert(GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, dll, &handle));
+        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, dll, &handle);
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
 
         original = (TMethod)GetProcAddress(handle, target);
-        assert(original);
         DetourAttach((PVOID*)&original, hooked);
 
-        assert(DetourTransactionCommit() == NO_ERROR);
+        DetourTransactionCommit();
     }
 
     template <typename TMethod>
@@ -110,7 +109,7 @@ namespace utils {
 
         DetourDetach((PVOID*)&original, hooked);
 
-        assert(DetourTransactionCommit() == NO_ERROR);
+        DetourTransactionCommit();
 
         original = nullptr;
     }
