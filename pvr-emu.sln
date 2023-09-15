@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.33529.622
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pvr-emu", "pvr-emu.vcxproj", "{12D0A36D-3F0A-4571-B0B8-8DDF5DBCE5A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DFR-UI", "DFR-UI\DFR-UI.csproj", "{635EEEDD-8C75-4609-B057-BCD4F5F59005}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -15,6 +17,10 @@ Global
 		{12D0A36D-3F0A-4571-B0B8-8DDF5DBCE5A0}.Debug|x64.Build.0 = Debug|x64
 		{12D0A36D-3F0A-4571-B0B8-8DDF5DBCE5A0}.Release|x64.ActiveCfg = Release|x64
 		{12D0A36D-3F0A-4571-B0B8-8DDF5DBCE5A0}.Release|x64.Build.0 = Release|x64
+		{635EEEDD-8C75-4609-B057-BCD4F5F59005}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{635EEEDD-8C75-4609-B057-BCD4F5F59005}.Debug|x64.Build.0 = Debug|Any CPU
+		{635EEEDD-8C75-4609-B057-BCD4F5F59005}.Release|x64.ActiveCfg = Release|Any CPU
+		{635EEEDD-8C75-4609-B057-BCD4F5F59005}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

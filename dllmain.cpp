@@ -147,6 +147,26 @@ namespace {
     // Varjo session handle, most important things will go through that!
     varjo_Session* varjoSession = nullptr;
 
+    wil::unique_registry_watcher registryWatcher;
+    std::atomic<uint32_t> mode = 0;
+
+    void updateMode() {
+        DWORD data{};
+        DWORD dataSize = sizeof(data);
+        LONG retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                     L"SOFTWARE\\FR-Utility",
+                                     L"mode",
+                                     RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
+                                     nullptr,
+                                     &data,
+                                     &dataSize);
+        if (retCode == ERROR_SUCCESS) {
+            mode.store(data);
+        } else {
+            mode.store(0);
+        }
+    }
+
     pvrResult emulate_initialise() {
         TraceLocalActivity(local);
 
@@ -168,6 +188,19 @@ namespace {
                 "kernel32.dll", "GetCurrentProcessId", hooked_GetCurrentProcessId, g_original_GetCurrentProcessId);
 
             TraceLoggingWriteTagged(local, "Varjo_Session", TLPArg(varjoSession));
+        }
+
+        // Watch for changes in the registry.
+        try {
+            wil::unique_hkey keyToWatch;
+            if (RegOpenKeyExW(
+                    HKEY_CURRENT_USER, L"SOFTWARE\\FR-Utility", 0, KEY_WOW64_64KEY | KEY_READ, keyToWatch.put()) ==
+                ERROR_SUCCESS) {
+                registryWatcher = wil::make_registry_watcher(
+                    std::move(keyToWatch), true, [&](wil::RegistryChangeKind changeType) { updateMode(); });
+            }
+        } catch (std::exception&) {
+            // Ignore errors that can happen with UWP applications not able to write to the registry.
         }
 
         TraceLoggingWriteStop(local, "PVR_initialize");
@@ -283,9 +316,6 @@ namespace {
 
         TraceLoggingWriteStart(local, "PVR_getIntConfig", TLArg(key), TLArg(def_val));
 
-        static bool isEnabled = true; // Always enabled by default.
-        static int level = 2;
-
 #ifdef _DEBUG
         // Debug keys for experimenting.
         {
@@ -299,50 +329,46 @@ namespace {
             }
             const bool isPressed = GetAsyncKeyState(VK_CONTROL) < 0 && isFnPressed[0];
             if (isPressed && !wasPressed) {
+                const uint32_t oldMode = mode.load();
                 if (isFnPressed[1]) {
-                    if (isEnabled) {
-                        Log("Disabling foveation\n");
-                    }
-                    isEnabled = false;
+                    mode.store(0);
                 } else if (isFnPressed[2]) {
-                    if (!isEnabled) {
-                        Log("Enabling foveation\n");
-                    }
-                    isEnabled = true;
+                    updateMode();
                 }
 
                 if (isFnPressed[5]) {
-                    if (level != 0) {
-                        Log("Setting foveation level: 0\n");
-                    }
-                    level = 0;
+                    mode.store(1);
                 } else if (isFnPressed[6]) {
-                    if (level != 1) {
-                        Log("Setting foveation level: 1\n");
-                    }
-                    level = 1;
+                    mode.store(2);
                 } else if (isFnPressed[7]) {
-                    if (level != 2) {
-                        Log("Setting foveation level: 2\n");
-                    }
-                    level = 2;
+                    mode.store(3);
                 } else if (isFnPressed[8]) {
-                    if (level != 3) {
-                        Log("Setting foveation level: 3\n");
-                    }
-                    level = 3;
+                    mode.store(4);
                 }
             }
         }
 #endif
 
+        static uint32_t oldMode = -1;
+        const uint32_t currentMode = mode.load();
+        if (oldMode != currentMode) {
+            if (!currentMode) {
+                Log("Disabling foveation\n");
+            } else if (currentMode == 4) {
+                Log("Debug mode\n");
+            } else {
+                Log("Setting foveation level: %u\n", currentMode - 1);
+            }
+        }
+        oldMode = currentMode;
+
         int value = def_val;
         {
             std::string_view strkey(key);
             if (strkey == "enable_foveated_rendering") {
-                value = isEnabled ? 1 : 0;
+                value = currentMode ? 1 : 0;
             } else if (strkey == "foveated_rendering_level") {
-                value = level;
+                value = currentMode - 1;
             }
         }
 

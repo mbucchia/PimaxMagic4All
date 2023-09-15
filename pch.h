@@ -24,6 +24,7 @@
 
 // Standard library.
 #define _CRT_SECURE_NO_WARNINGS
+#include <atomic>
 #include <cassert>
 #include <cstdlib>
 #include <filesystem>
@@ -42,6 +43,8 @@
 #include <windows.h>
 #include <traceloggingactivity.h>
 #include <traceloggingprovider.h>
+#include <wil/resource.h>
+#include <wil/registry.h>
 
 // Pimax SDK
 #include <PVR.h>
