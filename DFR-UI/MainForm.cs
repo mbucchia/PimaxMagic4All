@@ -73,6 +73,10 @@ namespace DFR_UI
         {
             reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled =
                 frMinimum.Enabled = frDebug.Enabled = forceFixed.Enabled = enabled;
+            if (!enabled)
+            {
+                frameTimeLabel.Text = "";
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e)

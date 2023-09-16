@@ -221,6 +221,9 @@ namespace {
             // Ignore errors that can happen with UWP applications not able to write to the registry.
         }
 
+        // Initial reading of the settings.
+        updateMode();
+
         TraceLoggingWriteStop(local, "PVR_initialize");
 
         // Succeed even without Varjo in order to get FFR behavior.

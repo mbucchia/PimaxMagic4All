@@ -218,6 +218,7 @@ namespace DFR_UI
             // forceFixed
             // 
             this.forceFixed.AutoSize = true;
+            this.forceFixed.Enabled = false;
             this.flowLayoutPanel2.SetFlowBreak(this.forceFixed, true);
             this.forceFixed.Location = new System.Drawing.Point(10, 52);
             this.forceFixed.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
