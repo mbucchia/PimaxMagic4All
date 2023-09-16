@@ -1,10 +1,21 @@
 # Pimax Foveated Rendering interoperability with Varjo (and more)
 
+## What does it do?
+
+This utility lets you use the Pimax Foveated Rendering feature with headsets other than Pimax. It re-implements a few parts of the Pimax PVR API (publicly available [from Pimax's website](https://developer.pimax.com/document/sdk/native/native-pc-xr-sdk.html)) to allow the Pimax Foveated Rendering code to run. It uses the `MagicAttach` tool available from the Pimax Play software to initiate Foveated Rendering into the currently running SteamVR OpenVR application.
+
+**IF YOU HAVE A PIMAX HEADSET, YOU DO NOT NEED THIS UTILITY!**
+
+**If you have a Varjo headset, you will be able to use Dynamic Foveated Rendering (with eye tracking).**
+
+**If you have any other headset, you will only be able to use Fixed Foveated Rendering.**
+
 ## Installing
 
-1) Install [Pimax Client](https://pimax.com/pimax-pc) from the Pimax website. This is temporary, you can uninstall it after we grab the necessary files.
+1) Install [Pimax Play](https://pimax.com/pimax-pc) from the Pimax website. This is temporary, you can uninstall it after we grab the necessary files.
+**At time of writing, Pimax Play 1.16 was successfully tested.**
 
-2) Go to `%ProgramFiles%\Pimax\Runtime` and copy the following files to a staging folder: `LibMagicD3D1164.dll` and `MagicAttach_x64.exe`.
+2) Go to `%ProgramFiles%\Pimax\Runtime` and copy the following files to a staging folder: `LibMagicD3D1164.dll` and `MagicAttach_x64.exe`. 
 These are the only files you need, you can then uninstall Pimax Client entirely.
 
 3) Download the Foveated Rendering Utility from the [Releases](https://github.com/mbucchia/PimaxMagic4All/releases) page. Unzip the Foveated Rendering Utility in the folder of your choice.
@@ -33,7 +44,7 @@ Then there are applications that meet all the requirements above, but still will
 Here are examples of applications that **do not work** with Pimax Foveated Rendering (and why):
 - Microsoft Flight Simulator (OpenXR)
 - No Man's Sky (Vulkan)
-- X-Plane 12 & 12 (Vulkan)
+- X-Plane 11 & 12 (Vulkan)
 - F1 2022 (Direct3D 12)
 - VR Chat (Easy-Anti Cheat)
 - Automobilista 2 (Does not work)
@@ -42,7 +53,7 @@ For alternative solutions, check out [OpenXR Toolkit](https://mbucchia.github.io
 
 ## Running
 
-Double-click `DFR-UI.exe`. **This app must be running at all time in order to initiate Foveated Rendering.**
+Double-click `DFR-UI.exe`. **This app must be running in order to initiate Foveated Rendering.**
 
 ![image](images/no-app.png)
 
@@ -52,7 +63,27 @@ If all went well, you will now have foveated rendering in your app.
 
 ![image](images/fr-on.png)
 
+## Frequently Asked Questions (FAQ)
+
+**Q:** I am having an issue with foveated rendering in game XYZ, can you fix it?
+
+**A:** No, I have no control over the foveated rendering part, it is all done by Pimax's software.
+
+**Q:** I own a Pimax headset and also a second headset. How do I handle copying the `libpvrclient64.dll` file in my System folder?
+
+**A:** You have no choice but to restore the original `libpvrclient64.dll` from Pimax before using your Pimax headset, and copy back the PimaxMagic4All copy of it into your System folder when switching to your other headset.
+
+**Q:** Can you add support for eye tracking with my Quest Pro/Pico Pro/"insert name of headset"?
+
+**A:** No I will not add support for other eye trackers. Most of these headsets do not expose public APIs for raw access to the eye tracker. The code is open source is very simple if you want to take a stab at it.
+
 ## Troubleshooting
+
+### First things to try
+
+- Restart the `DFR-UI.exe` utility.
+
+- Try pressing the "Try Re-Attach" button.
 
 ### Via log file
 
