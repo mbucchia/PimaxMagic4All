@@ -23,6 +23,7 @@ namespace DFR_UI
 
         CVRSystem VrSystem;
         CVRApplications VrApplications;
+        CVRCompositor VrCompositor;
         string PathToMagicAttach;
         uint AttachedApplication = 0;
         Microsoft.Win32.RegistryKey SettingsKey;
@@ -88,6 +89,7 @@ namespace DFR_UI
                 }
 
                 VrApplications = OpenVR.Applications;
+                VrCompositor = OpenVR.Compositor;
             }
 
             if (VrSystem != null)
@@ -120,7 +122,8 @@ namespace DFR_UI
                 var oldTextLength = log.TextLength;
                 try
                 {
-                    var fs = new FileStream(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\PvrEmu\\PvrEmu.log", FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                    var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\PvrEmu\\PvrEmu.log";
+                    var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
                     var sr = new StreamReader(fs, Encoding.Default);
                     log.Text = sr.ReadToEnd();
                 }
@@ -132,6 +135,13 @@ namespace DFR_UI
                 {
                     log.SelectionStart = log.TextLength;
                     log.ScrollToCaret();
+                }
+
+                Compositor_FrameTiming timing = new Compositor_FrameTiming();
+                timing.m_nSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(Compositor_FrameTiming));
+                if (VrCompositor.GetFrameTiming(ref timing, 0) && timing.m_flPreSubmitGpuMs > 0.0001f)
+                {
+                    frameTimeLabel.Text = "Application GPU frame time: " + (timing.m_flPreSubmitGpuMs + timing.m_flPostSubmitGpuMs).ToString("#.#") + "ms\n(for informational purposes only)";
                 }
             }
         }

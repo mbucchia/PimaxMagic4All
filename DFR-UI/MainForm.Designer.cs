@@ -45,6 +45,7 @@ namespace DFR_UI
             this.frDebug = new System.Windows.Forms.RadioButton();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.forceFixed = new System.Windows.Forms.CheckBox();
+            this.frameTimeLabel = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -120,6 +121,7 @@ namespace DFR_UI
             this.flowLayoutPanel2.Controls.Add(this.frMinimum);
             this.flowLayoutPanel2.Controls.Add(this.frDebug);
             this.flowLayoutPanel2.Controls.Add(this.forceFixed);
+            this.flowLayoutPanel2.Controls.Add(this.frameTimeLabel);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(2, 52);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
@@ -226,6 +228,16 @@ namespace DFR_UI
             this.forceFixed.UseVisualStyleBackColor = true;
             this.forceFixed.CheckedChanged += new System.EventHandler(this.forceFixed_CheckedChanged);
             // 
+            // frameTimeLabel
+            // 
+            this.frameTimeLabel.AutoSize = true;
+            this.flowLayoutPanel2.SetFlowBreak(this.frameTimeLabel, true);
+            this.frameTimeLabel.Location = new System.Drawing.Point(10, 80);
+            this.frameTimeLabel.Margin = new System.Windows.Forms.Padding(10, 8, 3, 0);
+            this.frameTimeLabel.Name = "frameTimeLabel";
+            this.frameTimeLabel.Size = new System.Drawing.Size(0, 13);
+            this.frameTimeLabel.TabIndex = 7;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -264,6 +276,7 @@ namespace DFR_UI
         private System.Windows.Forms.TextBox log;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox forceFixed;
+        private System.Windows.Forms.Label frameTimeLabel;
     }
 }
 
