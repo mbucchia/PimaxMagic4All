@@ -32,7 +32,10 @@ namespace DFR_UI
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.log = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.appLabel = new System.Windows.Forms.Label();
+            this.reattach = new System.Windows.Forms.Button();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.labelMode = new System.Windows.Forms.Label();
             this.frOff = new System.Windows.Forms.RadioButton();
@@ -40,10 +43,8 @@ namespace DFR_UI
             this.frBalanced = new System.Windows.Forms.RadioButton();
             this.frMinimum = new System.Windows.Forms.RadioButton();
             this.frDebug = new System.Windows.Forms.RadioButton();
-            this.appLabel = new System.Windows.Forms.Label();
-            this.reattach = new System.Windows.Forms.Button();
-            this.log = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.forceFixed = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -67,6 +68,17 @@ namespace DFR_UI
             this.tableLayoutPanel1.Size = new System.Drawing.Size(533, 292);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
+            // log
+            // 
+            this.log.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.log.Location = new System.Drawing.Point(3, 174);
+            this.log.Multiline = true;
+            this.log.Name = "log";
+            this.log.ReadOnly = true;
+            this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.log.Size = new System.Drawing.Size(527, 115);
+            this.log.TabIndex = 2;
+            // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.appLabel);
@@ -78,6 +90,27 @@ namespace DFR_UI
             this.flowLayoutPanel1.Size = new System.Drawing.Size(529, 46);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
+            // appLabel
+            // 
+            this.appLabel.Location = new System.Drawing.Point(6, 3);
+            this.appLabel.Margin = new System.Windows.Forms.Padding(6, 3, 3, 0);
+            this.appLabel.Name = "appLabel";
+            this.appLabel.Size = new System.Drawing.Size(300, 43);
+            this.appLabel.TabIndex = 0;
+            this.appLabel.Text = "Not connected to SteamVR";
+            this.appLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // reattach
+            // 
+            this.reattach.Enabled = false;
+            this.reattach.Location = new System.Drawing.Point(312, 3);
+            this.reattach.Name = "reattach";
+            this.reattach.Size = new System.Drawing.Size(130, 42);
+            this.reattach.TabIndex = 1;
+            this.reattach.Text = "Try Re-Attach";
+            this.reattach.UseVisualStyleBackColor = true;
+            this.reattach.Click += new System.EventHandler(this.reattach_Click);
+            // 
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Controls.Add(this.labelMode);
@@ -86,6 +119,7 @@ namespace DFR_UI
             this.flowLayoutPanel2.Controls.Add(this.frBalanced);
             this.flowLayoutPanel2.Controls.Add(this.frMinimum);
             this.flowLayoutPanel2.Controls.Add(this.frDebug);
+            this.flowLayoutPanel2.Controls.Add(this.forceFixed);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(2, 52);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
@@ -173,43 +207,24 @@ namespace DFR_UI
             this.frDebug.UseVisualStyleBackColor = true;
             this.frDebug.CheckedChanged += new System.EventHandler(this.frDebug_CheckedChanged);
             // 
-            // appLabel
-            // 
-            this.appLabel.Location = new System.Drawing.Point(6, 3);
-            this.appLabel.Margin = new System.Windows.Forms.Padding(6, 3, 3, 0);
-            this.appLabel.Name = "appLabel";
-            this.appLabel.Size = new System.Drawing.Size(300, 43);
-            this.appLabel.TabIndex = 0;
-            this.appLabel.Text = "Not connected to SteamVR";
-            this.appLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // reattach
-            // 
-            this.reattach.Enabled = false;
-            this.reattach.Location = new System.Drawing.Point(312, 3);
-            this.reattach.Name = "reattach";
-            this.reattach.Size = new System.Drawing.Size(130, 42);
-            this.reattach.TabIndex = 1;
-            this.reattach.Text = "Try Re-Attach";
-            this.reattach.UseVisualStyleBackColor = true;
-            this.reattach.Click += new System.EventHandler(this.reattach_Click);
-            // 
-            // log
-            // 
-            this.log.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.log.Location = new System.Drawing.Point(3, 174);
-            this.log.Multiline = true;
-            this.log.Name = "log";
-            this.log.ReadOnly = true;
-            this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(527, 115);
-            this.log.TabIndex = 2;
-            // 
             // timer1
             // 
             this.timer1.Enabled = true;
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // forceFixed
+            // 
+            this.forceFixed.AutoSize = true;
+            this.flowLayoutPanel2.SetFlowBreak(this.forceFixed, true);
+            this.forceFixed.Location = new System.Drawing.Point(10, 52);
+            this.forceFixed.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
+            this.forceFixed.Name = "forceFixed";
+            this.forceFixed.Size = new System.Drawing.Size(202, 17);
+            this.forceFixed.TabIndex = 6;
+            this.forceFixed.Text = "Ignore eye tracking (when supported)";
+            this.forceFixed.UseVisualStyleBackColor = true;
+            this.forceFixed.CheckedChanged += new System.EventHandler(this.forceFixed_CheckedChanged);
             // 
             // MainForm
             // 
@@ -248,6 +263,7 @@ namespace DFR_UI
         private System.Windows.Forms.Button reattach;
         private System.Windows.Forms.TextBox log;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.CheckBox forceFixed;
     }
 }
 

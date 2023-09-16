@@ -65,6 +65,13 @@ namespace DFR_UI
                     frDebug.Checked = true;
                     break;
             }
+            forceFixed.Checked = (int)SettingsKey.GetValue("ignore_eye_tracking", 0) == 0 ? false : true;
+        }
+
+        void SetEnabled(bool enabled)
+        {
+            reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled =
+                frMinimum.Enabled = frDebug.Enabled = forceFixed.Enabled = enabled;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -76,7 +83,7 @@ namespace DFR_UI
                 if (VrSystem == null)
                 {
                     appLabel.Text = "Not connected to SteamVR (" + error + ")";
-                    reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled = frMinimum.Enabled = frDebug.Enabled = false;
+                    SetEnabled(false);
                     return;
                 }
 
@@ -98,7 +105,7 @@ namespace DFR_UI
                         VrApplications.GetApplicationPropertyString(appKey, EVRApplicationProperty.Name_String, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
                         var appName = sb.ToString();
                         appLabel.Text = "Current application: " + appName + " (" + pid + ")";
-                        reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled = frMinimum.Enabled = frDebug.Enabled = true;
+                        SetEnabled(true);
 
                         MagicAttach(pid);
                         AttachedApplication = pid;
@@ -107,7 +114,7 @@ namespace DFR_UI
                 else
                 {
                     appLabel.Text = "No SteamVR application is running";
-                    reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled = frMinimum.Enabled = frDebug.Enabled = false;
+                    SetEnabled(false);
                 }
 
                 var oldTextLength = log.TextLength;
@@ -175,6 +182,11 @@ namespace DFR_UI
         private void reattach_Click(object sender, EventArgs e)
         {
             MagicAttach(AttachedApplication);
+        }
+
+        private void forceFixed_CheckedChanged(object sender, EventArgs e)
+        {
+            SettingsKey.SetValue("ignore_eye_tracking", forceFixed.Checked ? 1 : 0);
         }
     }
 }

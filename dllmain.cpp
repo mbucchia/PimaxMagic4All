@@ -148,6 +148,7 @@ namespace {
 
     wil::unique_registry_watcher registryWatcher;
     std::atomic<uint32_t> mode = 0;
+    std::atomic<bool> ignoreEyeTracking = 0;
 
     std::chrono::time_point<std::chrono::steady_clock> lastGoodEyeTrackingDataTime{};
     std::optional<pvrEyeTrackingInfo> lastGoodEyeTrackingInfo;
@@ -155,17 +156,32 @@ namespace {
     void updateMode() {
         DWORD data{};
         DWORD dataSize = sizeof(data);
-        LONG retCode = ::RegGetValue(HKEY_CURRENT_USER,
-                                     L"SOFTWARE\\FR-Utility",
-                                     L"mode",
-                                     RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
-                                     nullptr,
-                                     &data,
-                                     &dataSize);
+        LONG retCode;
+
+        retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                L"SOFTWARE\\FR-Utility",
+                                L"mode",
+                                RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
+                                nullptr,
+                                &data,
+                                &dataSize);
         if (retCode == ERROR_SUCCESS) {
             mode.store(data);
         } else {
             mode.store(0);
+        }
+
+        retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                L"SOFTWARE\\FR-Utility",
+                                L"ignore_eye_tracking",
+                                RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
+                                nullptr,
+                                &data,
+                                &dataSize);
+        if (retCode == ERROR_SUCCESS) {
+            ignoreEyeTracking.store(data);
+        } else {
+            ignoreEyeTracking.store(false);
         }
     }
 
@@ -414,7 +430,10 @@ namespace {
             }
 
             // Query the most recent eye tracking data.
-            const auto gaze = varjo_GetGaze(varjoSession);
+            varjo_Gaze gaze{};
+            if (!ignoreEyeTracking.load()) {
+                gaze = varjo_GetGaze(varjoSession);
+            }
             bool isValid = true;
             for (uint32_t i = 0; i < 2; i++) {
                 if ((i == 0 && gaze.leftStatus == varjo_GazeEyeStatus_Invalid) ||
