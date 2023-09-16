@@ -1,4 +1,4 @@
-# Pimax Foveated Rendering interoperability with Varjo
+# Pimax Foveated Rendering interoperability with Varjo (and more)
 
 ## Installing
 
@@ -14,7 +14,7 @@ The `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` shall be next to the `DFR-UI
 
 5) Copy the `libpvrclient64.dll` and `VarjoLib.dll` filed from the folder created in step 3) into the `%SystemRoot%\System32` folder (aka: `C:\Windows\System32`).
 
-6) Start Varjo Base and make sure eye tracking is calibrated and allowed for applications (search 'Privacy' settings under 'System').
+6) (For Varjo users) Start Varjo Base and make sure eye tracking is calibrated and allowed for applications (search 'Privacy' settings under 'System').
 
 ## Running
 

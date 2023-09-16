@@ -80,8 +80,8 @@
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
 if not defined PFX_NAME set PFX_NAME=selfsigncert
-$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/Varjo-Compat-PVR-DFR" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
-$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/Varjo-Compat-PVR-DFR" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
 :skip_signing
 </Command>
     </PostBuildEvent>
@@ -118,8 +118,8 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
 if not defined PFX_NAME set PFX_NAME=selfsigncert
-$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/Varjo-Compat-PVR-DFR" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
-$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/Varjo-Compat-PVR-DFR" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
 :skip_signing
 </Command>
     </PostBuildEvent>
