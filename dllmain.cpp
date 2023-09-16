@@ -149,6 +149,9 @@ namespace {
     wil::unique_registry_watcher registryWatcher;
     std::atomic<uint32_t> mode = 0;
 
+    std::chrono::time_point<std::chrono::steady_clock> lastGoodEyeTrackingDataTime{};
+    std::optional<pvrEyeTrackingInfo> lastGoodEyeTrackingInfo;
+
     void updateMode() {
         DWORD data{};
         DWORD dataSize = sizeof(data);
@@ -403,6 +406,14 @@ namespace {
         TraceLoggingWriteStart(local, "PVR_getEyeTrackingInfo", TLArg(absTime));
 
         if (varjoSession) {
+            const auto now = std::chrono::steady_clock::now();
+
+            // Clear old cache
+            if ((now - lastGoodEyeTrackingDataTime).count() >= 600'000'000) {
+                lastGoodEyeTrackingInfo.reset();
+            }
+
+            // Query the most recent eye tracking data.
             const auto gaze = varjo_GetGaze(varjoSession);
             bool isValid = true;
             for (uint32_t i = 0; i < 2; i++) {
@@ -421,6 +432,15 @@ namespace {
 
                 // This works well-enough.
                 outInfo->GazeTan[i] = {(float)forward[0], (float)forward[1]};
+            }
+
+            if (isValid) {
+                lastGoodEyeTrackingInfo = *outInfo;
+                lastGoodEyeTrackingDataTime = now;
+            } else if (!isValid && lastGoodEyeTrackingInfo) {
+                // To avoid warping during blinking, we use a reasonably recent cached gaze vector.
+                *outInfo = lastGoodEyeTrackingInfo.value();
+                isValid = true;
             }
 
             outInfo->TimeInSeconds = isValid ? absTime : 0;

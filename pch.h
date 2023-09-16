@@ -32,6 +32,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 
