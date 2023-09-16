@@ -57,8 +57,8 @@ jobs:
       with:
         name: DFR-UI
         path: |
-          bin/Release/DFR-UI.exe
-          bin/Release/DFR-UI.exe.config
-          bin/Release/openvr_api.dll
-          bin/Release/libpvrclient64.dll
-          bin/Release/VarjoLib.dll
+          bin/x64/Release/DFR-UI.exe
+          bin/x64/Release/DFR-UI.exe.config
+          bin/x64/Release/openvr_api.dll
+          bin/x64/Release/libpvrclient64.dll
+          bin/x64/Release/VarjoLib.dll
