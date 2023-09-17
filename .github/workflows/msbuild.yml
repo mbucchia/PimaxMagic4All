@@ -52,13 +52,16 @@ jobs:
         # Finally, we may build the project.
         devenv.com ${{env.SOLUTION_FILE_PATH}} /Build "${{env.BUILD_CONFIGURATION}}|x64"
 
+        copy README.md bin\x64\Release\
+
     - name: Publish
       uses: actions/upload-artifact@v2
       with:
-        name: DFR-UI
+        name: PimaxMagic4All
         path: |
           bin/x64/Release/DFR-UI.exe
           bin/x64/Release/DFR-UI.exe.config
           bin/x64/Release/openvr_api.dll
           bin/x64/Release/libpvrclient64.dll
           bin/x64/Release/VarjoLib.dll
+          bin/x64/Release/README.md
