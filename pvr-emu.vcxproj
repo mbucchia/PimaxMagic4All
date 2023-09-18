@@ -63,7 +63,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\Varjo\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\OpenXR\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -76,11 +76,13 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\SDK\Varjo\bin\VarjoLib.dll $(OutDir)
+copy $(SolutionDir)\dependencies\openxr_loader.dll $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
 if not defined PFX_NAME set PFX_NAME=selfsigncert
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\openxr_loader.dll
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
 :skip_signing
 </Command>
@@ -99,7 +101,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\Varjo\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\OpenXR\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -114,11 +116,13 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\SDK\Varjo\bin\VarjoLib.dll $(OutDir)
+copy $(SolutionDir)\dependencies\openxr_loader.dll $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
 if not defined PFX_NAME set PFX_NAME=selfsigncert
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\openxr_loader.dll
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
 :skip_signing
 </Command>
