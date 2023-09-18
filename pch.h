@@ -42,6 +42,7 @@
 // Windows header files.
 #define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
+#include <wrl.h>
 #include <traceloggingactivity.h>
 #include <traceloggingprovider.h>
 #include <wil/resource.h>
@@ -53,6 +54,17 @@
 
 // Varjo SDK
 #include <Varjo.h>
+
+// Direct3D
+#include <d3d11.h>
+
+// OpenXR SDK
+#define XR_USE_PLATFORM_WIN32
+#define XR_USE_GRAPHICS_API_D3D11
+#include <openxr/openxr_platform.h>
+#include <openxr/openxr.h>
+
+#include <XrMath.h>
 
 // Detours
 #include <detours.h>
