@@ -64,6 +64,7 @@ jobs:
           bin/x64/Release/DFR-UI.exe
           bin/x64/Release/DFR-UI.exe.config
           bin/x64/Release/openvr_api.dll
+          bin/x64/Release/install_system_files.bat
           bin/x64/Release/libpvrclient64.dll
           bin/x64/Release/jsoncpp.dll
           bin/x64/Release/libzmq-mt-4_3_3.dll

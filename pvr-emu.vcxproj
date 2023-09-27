@@ -78,6 +78,7 @@
       <Command>copy $(SolutionDir)\SDK\Varjo\bin\VarjoLib.dll $(OutDir)
 copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\jsoncpp.dll $(OutDir)
 copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\libzmq-mt-gd-4_3_3.dll $(OutDir)
+copy $(SolutionDir)\install_system_files.bat $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -118,6 +119,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <Command>copy $(SolutionDir)\SDK\Varjo\bin\VarjoLib.dll $(OutDir)
 copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\jsoncpp.dll $(OutDir)
 copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\libzmq-mt-4_3_3.dll $(OutDir)
+copy $(SolutionDir)\install_system_files.bat $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
