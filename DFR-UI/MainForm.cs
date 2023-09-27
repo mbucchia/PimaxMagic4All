@@ -30,6 +30,8 @@ namespace DFR_UI
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            this.Text += " v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
             var assembly = Assembly.GetAssembly(GetType());
             var installPath = Path.GetDirectoryName(assembly.Location);
 
