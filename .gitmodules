@@ -13,3 +13,6 @@
 [submodule "external/OpenXR-MixedReality"]
 	path = external/OpenXR-MixedReality
 	url = https://github.com/mbucchia/OpenXR-MixedReality.git
+[submodule "tests/directx11_hellovr"]
+	path = tests/directx11_hellovr
+	url = https://github.com/mbucchia/directx11_hellovr.git
