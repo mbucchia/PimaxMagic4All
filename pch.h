@@ -47,12 +47,33 @@
 #include <wil/resource.h>
 #include <wil/registry.h>
 
+// We don't use OpenXR, however we import code as-is from the OpenXR-Eye-Trackers project, therefore we need definitions
+// for OpenXR basic types (such as XrPosef or XrVector3f).
+#define XR_NO_PROTOTYPES
+#include <openxr/openxr.h>
+#include <XrError.h>
+#include <XrMath.h>
+#include <XrStereoView.h>
+#include <XrToString.h>
+
+// We also need this definition to keep the compiler happy (unused code).
+class OpenXrApi {};
+
+// FMT formatter.
+#include <fmt/format.h>
+
 // Pimax SDK
 #include <PVR.h>
 #include <PVR_Interface.h>
 
+// OpenVR
+#include <openvr.h>
+
 // Varjo SDK
 #include <Varjo.h>
+
+// HP Omnicept SDK
+#include <omnicept/Glia.h>
 
 // Detours
 #include <detours.h>

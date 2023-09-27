@@ -4,3 +4,12 @@
 [submodule "SDK/Varjo"]
 	path = SDK/Varjo
 	url = https://github.com/mbucchia/Varjo-SDK.git
+[submodule "external/OpenXR-Eye-Trackers"]
+	path = external/OpenXR-Eye-Trackers
+	url = https://github.com/mbucchia/OpenXR-Eye-Trackers.git
+[submodule "SDK/Omnicept"]
+	path = SDK/Omnicept
+	url = https://github.com/mbucchia/Omnicept-SDK.git
+[submodule "external/OpenXR-MixedReality"]
+	path = external/OpenXR-MixedReality
+	url = https://github.com/mbucchia/OpenXR-MixedReality.git

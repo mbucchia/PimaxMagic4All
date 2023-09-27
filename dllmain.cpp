@@ -22,27 +22,24 @@
 
 #include "pch.h"
 
-// {cbf3adcd-42b9-4c38-830b-91980af201f6}
-TRACELOGGING_DEFINE_PROVIDER(g_traceProvider,
-                             "PvrEmu",
-                             (0xcbf3adcd, 0x42b9, 0x4c38, 0x83, 0x0b, 0x91, 0x98, 0x0a, 0xf2, 0x01, 0xf6));
+#include "log.h"
+using namespace openxr_api_layer::log;
 
-TraceLoggingActivity<g_traceProvider> g_traceActivity;
-
-//
-// Tracelogging helpers.
-//
-
-#define TraceLocalActivity(activity) TraceLoggingActivity<g_traceProvider> activity;
-
-#define TLArg(var, ...) TraceLoggingValue(var, ##__VA_ARGS__)
-#define TLPArg(var, ...) TraceLoggingPointer(var, ##__VA_ARGS__)
+#include <trackers.h>
+using namespace openxr_api_layer;
 
 //
 // Log file helpers.
 //
 
-namespace utils {
+namespace openxr_api_layer::log {
+    // {cbf3adcd-42b9-4c38-830b-91980af201f6}
+    TRACELOGGING_DEFINE_PROVIDER(g_traceProvider,
+                                 "PvrEmu",
+                                 (0xcbf3adcd, 0x42b9, 0x4c38, 0x83, 0x0b, 0x91, 0x98, 0x0a, 0xf2, 0x01, 0xf6));
+
+    TraceLoggingActivity<g_traceProvider> g_traceActivity;
+
     namespace {
 
         std::ofstream logStream;
@@ -70,51 +67,7 @@ namespace utils {
         va_end(va);
     }
 
-} // namespace utils
-
-//
-// Detours helpers.
-//
-
-namespace utils {
-
-    template <typename TMethod>
-    void DetourDllAttach(const char* dll, const char* target, TMethod hooked, TMethod& original) {
-        if (original) {
-            // Already hooked.
-            return;
-        }
-
-        HMODULE handle;
-        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, dll, &handle);
-
-        DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-
-        original = (TMethod)GetProcAddress(handle, target);
-        DetourAttach((PVOID*)&original, hooked);
-
-        DetourTransactionCommit();
-    }
-
-    template <typename TMethod>
-    void DetourDllDetach(const char* dll, const char* target, TMethod hooked, TMethod& original) {
-        if (!original) {
-            // Not hooked.
-            return;
-        }
-
-        DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-
-        DetourDetach((PVOID*)&original, hooked);
-
-        DetourTransactionCommit();
-
-        original = nullptr;
-    }
-
-} // namespace utils
+} // namespace openxr_api_layer::log
 
 //
 // And now, the real stuff.
@@ -122,29 +75,7 @@ namespace utils {
 
 namespace {
 
-    using namespace utils;
-
-    // Hook to fake process ID.
-    decltype(GetCurrentProcessId)* g_original_GetCurrentProcessId = nullptr;
-    DWORD WINAPI hooked_GetCurrentProcessId() {
-        // We try to only intercept calls from the Varjo client.
-        HMODULE callerModule;
-        if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                               (LPCSTR)_ReturnAddress(),
-                               &callerModule)) {
-            HMODULE libVarjo = GetModuleHandleA("VarjoLib.dll");
-            HMODULE libVarjoRuntime = GetModuleHandleA("VarjoRuntime.dll");
-            if (callerModule != libVarjo && callerModule != libVarjoRuntime) {
-                return g_original_GetCurrentProcessId();
-            }
-        }
-
-        // Always return a process ID different from ours.
-        return g_original_GetCurrentProcessId() + 42;
-    }
-
-    // Varjo session handle, most important things will go through that!
-    varjo_Session* varjoSession = nullptr;
+    std::unique_ptr<IEyeTracker> eyeTracker;
 
     wil::unique_registry_watcher registryWatcher;
     std::atomic<uint32_t> mode = 0;
@@ -152,6 +83,8 @@ namespace {
 
     std::chrono::time_point<std::chrono::steady_clock> lastGoodEyeTrackingDataTime{};
     std::optional<pvrEyeTrackingInfo> lastGoodEyeTrackingInfo;
+
+    vr::IVRSystem* openvrSystem = nullptr;
 
     void updateMode() {
         DWORD data{};
@@ -190,24 +123,6 @@ namespace {
 
         TraceLoggingWriteStart(local, "PVR_initialize");
 
-        // Initialize the Varjo SDK.
-        if (!varjoSession && varjo_IsAvailable()) {
-            const char* version = varjo_GetVersionString();
-            TraceLoggingWriteTagged(local, "Varjo_SDK", TLArg(version));
-            Log("Varjo SDK: %s\n", version);
-
-            // We will fake process ID to make sure the Varjo SDK doesn't exit SteamVR.
-            DetourDllAttach(
-                "kernel32.dll", "GetCurrentProcessId", hooked_GetCurrentProcessId, g_original_GetCurrentProcessId);
-
-            varjoSession = varjo_SessionInit();
-
-            DetourDllDetach(
-                "kernel32.dll", "GetCurrentProcessId", hooked_GetCurrentProcessId, g_original_GetCurrentProcessId);
-
-            TraceLoggingWriteTagged(local, "Varjo_Session", TLPArg(varjoSession));
-        }
-
         // Watch for changes in the registry.
         try {
             wil::unique_hkey keyToWatch;
@@ -221,12 +136,48 @@ namespace {
             // Ignore errors that can happen with UWP applications not able to write to the registry.
         }
 
+        // Retrieve the IVRSystem. If we are in this function now, then it means someone initialized it at some point.
+        HMODULE openvr = nullptr;
+        GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, L"openvr_api.dll", &openvr);
+        if (openvr) {
+            void* (*pfnVR_GetGenericInterface)(const char* pchInterfaceVersion, vr::EVRInitError* peError) =
+                (decltype(pfnVR_GetGenericInterface))GetProcAddress(openvr, "VR_GetGenericInterface");
+            if (pfnVR_GetGenericInterface) {
+                vr::EVRInitError error;
+                openvrSystem = (vr::IVRSystem*)pfnVR_GetGenericInterface("IVRSystem_022", &error);
+            }
+        }
+
+        if (!openvrSystem) {
+            Log("Unable to retrieve IVRSystem, projection may be inaccurate\n");
+        }
+
+        // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
+        std::function<std::unique_ptr<IEyeTracker>()> eyeTrackers[] = {
+            // 1) Omnicept uses a background service, it is not likely to be installed if the device is not used.
+            createOmniceptEyeTracker,
+            // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
+            createVirtualDesktopEyeTracker,
+            // 3) Varjo only loads if Varjo Base is running.
+            createVarjoEyeTracker};
+        for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
+            eyeTracker = eyeTrackers[i]();
+        }
+
+        if (eyeTracker) {
+            TraceLoggingWrite(
+                g_traceProvider, "EyeTracker", TLArg(getTrackerType(eyeTracker->getType()).c_str(), "Type"));
+            Log(fmt::format("Using eye tracking: {}\n", getTrackerType(eyeTracker->getType())));
+        } else {
+            Log("No supported eye tracking device found\n");
+        }
+
         // Initial reading of the settings.
         updateMode();
 
         TraceLoggingWriteStop(local, "PVR_initialize");
 
-        // Succeed even without Varjo in order to get FFR behavior.
+        // Succeed even without an eye tracker in order to get FFR behavior.
         return pvr_success;
     }
 
@@ -235,10 +186,7 @@ namespace {
 
         TraceLoggingWriteStart(local, "PVR_shutdown");
 
-        if (varjoSession) {
-            varjo_SessionShutDown(varjoSession);
-            varjoSession = nullptr;
-        }
+        eyeTracker.reset();
 
         Log("Terminated\n");
 
@@ -250,9 +198,9 @@ namespace {
 
         TraceLoggingWriteStart(local, "PVR_createHmd");
 
-        // Initialize Varjo eye tracking.
-        if (varjoSession) {
-            varjo_GazeInit(varjoSession);
+        // Initialize eye tracking.
+        if (eyeTracker) {
+            eyeTracker->start(XR_NULL_HANDLE);
         }
 
         // Any fake handle.
@@ -275,42 +223,24 @@ namespace {
 
         TraceLoggingWriteStart(local, "PVR_getEyeRenderInfo", TLArg((int)eye, "eye"));
 
-        // Prepare a PVR struct from the Varjo information. It's unclear exactly which fields LibMagic actually needs,
-        // so we just populate them all.
-
-        double ipd = 0;
-        if (varjoSession) {
-            varjo_GetTextureSize(varjoSession,
-                                 varjo_TextureSize_Type_Stereo,
-                                 (uint32_t)eye,
-                                 &outInfo->DistortedViewport.Size.w,
-                                 &outInfo->DistortedViewport.Size.h);
-            outInfo->DistortedViewport.Pos = {0, 0};
-
-            const auto fov = varjo_GetFovTangents(varjoSession, (int)eye);
-            outInfo->Fov.DownTan = (float)abs(fov.bottom);
-            outInfo->Fov.LeftTan = (float)abs(fov.left);
-            outInfo->Fov.RightTan = (float)abs(fov.right);
-            outInfo->Fov.UpTan = (float)abs(fov.top);
-
-            // Try auto-IPD, then manual IPD selection.
-            ipd = varjo_GetPropertyDouble(varjoSession, varjo_PropertyKey_GazeIPDEstimate) / 1000;
-            if (ipd < FLT_EPSILON) {
-                ipd = varjo_GetPropertyDouble(varjoSession, varjo_PropertyKey_IPDPosition) / 1000;
-            }
-
-            static double loggedIpd = 0;
-            if (abs(loggedIpd - ipd) > DBL_EPSILON) {
-                Log("Detected IPD: %.4f\n", ipd);
-            }
-            loggedIpd = ipd;
+        // It's unclear exactly which fields LibMagic actually needs, so we just populate them all.
+        // Refine parameters if we can. This will produce a better outcome (proper eye convergence).
+        if (openvrSystem) {
+            float bottom, left, right, top;
+            // Note that top and bottom are swapped (empirical mistake in OpenVR?).
+            openvrSystem->GetProjectionRaw((vr::EVREye)eye, &left, &right, &bottom, &top);
+            outInfo->Fov.DownTan = (float)abs(bottom);
+            outInfo->Fov.LeftTan = (float)abs(left);
+            outInfo->Fov.RightTan = (float)abs(right);
+            outInfo->Fov.UpTan = (float)abs(top);
         } else {
-            // Just some defaults...
-            outInfo->DistortedViewport.Size = {2160, 2160};
-            outInfo->DistortedViewport.Pos = {0, 0};
             outInfo->Fov.DownTan = outInfo->Fov.LeftTan = outInfo->Fov.RightTan = outInfo->Fov.UpTan =
                 (float)tan(M_PI_4);
         }
+
+        // Don't care? These values seem to make no difference.
+        outInfo->DistortedViewport.Pos = {0, 0};
+        outInfo->DistortedViewport.Size = {2160, 2160};
 
         // Don't care? Just put a value that assumes uniform PPD.
         outInfo->PixelsPerTanAngleAtCenter.x =
@@ -319,13 +249,9 @@ namespace {
             outInfo->DistortedViewport.Size.h / (abs(outInfo->Fov.UpTan) + abs(outInfo->Fov.DownTan));
 
         // No canting.
+        const float ipd = 0.063f;
+        outInfo->HmdToEyePose.Position = {(ipd / 2.f) * (eye == pvrEye_Left ? -1 : 1), 0, 0};
         outInfo->HmdToEyePose.Orientation = {0, 0, 0, 1};
-
-        if (ipd < FLT_EPSILON) {
-            // Use a good fallback.
-            ipd = 0.063;
-        }
-        outInfo->HmdToEyePose.Position = {((float)ipd / 2.f) * (eye == pvrEye_Left ? -1 : 1), 0, 0};
 
         TraceLoggingWriteStop(local, "PVR_getEyeRenderInfo");
 
@@ -424,7 +350,7 @@ namespace {
 
         TraceLoggingWriteStart(local, "PVR_getEyeTrackingInfo", TLArg(absTime));
 
-        if (varjoSession) {
+        if (eyeTracker) {
             const auto now = std::chrono::steady_clock::now();
 
             // Clear old cache
@@ -433,27 +359,15 @@ namespace {
             }
 
             // Query the most recent eye tracking data.
-            varjo_Gaze gaze{};
+            XrVector3f gaze{};
+            bool isValid = false;
             if (!ignoreEyeTracking.load()) {
-                gaze = varjo_GetGaze(varjoSession);
+                isValid = eyeTracker->getGaze(0, gaze);
             }
-            bool isValid = true;
             for (uint32_t i = 0; i < 2; i++) {
-                if ((i == 0 && gaze.leftStatus == varjo_GazeEyeStatus_Invalid) ||
-                    (i == 1 && gaze.rightStatus == varjo_GazeEyeStatus_Invalid)) {
-                    isValid = false;
-                    break;
-                }
-
-                const auto& forward = i == 0 ? gaze.leftEye.forward : gaze.rightEye.forward;
-                const double r = sqrt(forward[0] * forward[0] + forward[1] * forward[1] + forward[2] * forward[2]);
-                if (r < FLT_EPSILON) {
-                    isValid = false;
-                    break;
-                }
-
+                // Our gaze vector is normalized.
                 // This works well-enough.
-                outInfo->GazeTan[i] = {(float)forward[0], (float)forward[1]};
+                outInfo->GazeTan[i] = {gaze.x, gaze.y};
             }
 
             if (isValid) {

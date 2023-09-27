@@ -64,4 +64,6 @@ jobs:
           bin/x64/Release/openvr_api.dll
           bin/x64/Release/libpvrclient64.dll
           bin/x64/Release/VarjoLib.dll
+          bin/x64/Release/libzmq-mt-4_3_3.dll
+          bin/x64/Release/VarjoLib.dll
           bin/x64/Release/README.md

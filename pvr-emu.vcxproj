@@ -63,19 +63,21 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\Varjo\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)\SDK\Varjo\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>varjolib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\SDK\Varjo\lib;$(SolutionDir)\SDK\Omnicept\lib\$(Configuration)\msvc2019_64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>varjolib.lib;ws2_32.lib;bcrypt.lib;crypt32.lib;wintrust.lib;Iphlpapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;hp_omniceptd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\SDK\Varjo\bin\VarjoLib.dll $(OutDir)
+copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\jsoncpp.dll $(OutDir)
+copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\libzmq-mt-gd-4_3_3.dll $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -99,9 +101,9 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\Varjo\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -109,11 +111,13 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)\SDK\Varjo\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>varjolib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\SDK\Varjo\lib;$(SolutionDir)\SDK\Omnicept\lib\$(Configuration)\msvc2019_64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>varjolib.lib;ws2_32.lib;bcrypt.lib;crypt32.lib;wintrust.lib;Iphlpapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;hp_omnicept.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\SDK\Varjo\bin\VarjoLib.dll $(OutDir)
+copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\jsoncpp.dll $(OutDir)
+copy $(SolutionDir)\SDK\Omnicept\bin\$(Configuration)\libzmq-mt-4_3_3.dll $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -128,10 +132,16 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="external\OpenXR-Eye-Trackers\openxr-api-layer\trackers.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\omnicept.cpp" />
+    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\varjo.cpp" />
+    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\virtual_desktop.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -144,6 +154,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('packages\Detours.4.0.1\build\native\Detours.targets')" />
     <Import Project="packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="packages\fmt.7.0.1\build\fmt.targets" Condition="Exists('packages\fmt.7.0.1\build\fmt.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -151,5 +162,6 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     </PropertyGroup>
     <Error Condition="!Exists('packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Detours.4.0.1\build\native\Detours.targets'))" />
     <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('packages\fmt.7.0.1\build\fmt.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\fmt.7.0.1\build\fmt.targets'))" />
   </Target>
 </Project>
