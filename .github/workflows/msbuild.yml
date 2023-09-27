@@ -52,7 +52,9 @@ jobs:
         # Finally, we may build the project.
         devenv.com ${{env.SOLUTION_FILE_PATH}} /Build "${{env.BUILD_CONFIGURATION}}|x64"
 
+        copy PvrEmu.wprp bin\x64\Release\
         copy README.md bin\x64\Release\
+        copy THIRD_PARTY bin\x64\Release\
 
     - name: Publish
       uses: actions/upload-artifact@v2
@@ -66,4 +68,6 @@ jobs:
           bin/x64/Release/jsoncpp.dll
           bin/x64/Release/libzmq-mt-4_3_3.dll
           bin/x64/Release/VarjoLib.dll
+          bin/x64/Release/PvrEmu.wprp
           bin/x64/Release/README.md
+          bin/x64/Release/THIRD_PARTY

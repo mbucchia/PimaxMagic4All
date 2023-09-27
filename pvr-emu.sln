@@ -14,7 +14,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		LICENSE = LICENSE
+		PvrEmu.wprp = PvrEmu.wprp
 		README.md = README.md
+		THIRD_PARTY = THIRD_PARTY
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub", "GitHub", "{7B906A2D-D004-433C-8CD6-1BF10A4FB885}"
