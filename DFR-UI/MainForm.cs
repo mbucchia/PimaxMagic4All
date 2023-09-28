@@ -138,7 +138,7 @@ namespace DFR_UI
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (VrSystem == null)
+            if (VrSystem == null || VrApplications == null || VrCompositor == null)
             {
                 EVRInitError error = EVRInitError.Unknown;
                 VrSystem = OpenVR.Init(ref error, EVRApplicationType.VRApplication_Background);
@@ -153,7 +153,7 @@ namespace DFR_UI
                 VrCompositor = OpenVR.Compositor;
             }
 
-            if (VrSystem != null)
+            if (VrSystem != null && VrApplications != null && VrCompositor != null)
             {
                 uint pid = VrApplications.GetCurrentSceneProcessId();
                 if (pid > 0)
