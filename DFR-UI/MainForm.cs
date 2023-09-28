@@ -80,21 +80,22 @@ namespace DFR_UI
                 }
                 var processInfo = new ProcessStartInfo();
                 processInfo.Verb = "RunAs";
-                processInfo.FileName = Path.Combine(installPath, "install_system_files.bat");
-                processInfo.Arguments = installPath;
+                processInfo.FileName = "cmd.exe";
+                processInfo.Arguments = "/s /c \"\"" + Path.Combine(installPath, "install_system_files.bat") + "\" \"" + installPath + "\"\"";
+                processInfo.UseShellExecute = true;
                 try
                 {
                     var process = Process.Start(processInfo);
                     process.WaitForExit();
                     if (process.ExitCode != 0)
                     {
-                        MessageBox.Show("Installation failed. Please make sure SteamVR is closed before trying again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("Installation failed. Please make sure SteamVR is closed before trying again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                         Environment.Exit(1);
                     }
                 }
                 catch (Win32Exception exc)
                 {
-                    MessageBox.Show("Failed to run the installation script: " + exc, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Failed to run the installation script: " + exc, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
                     Environment.Exit(1);
                 }
 
