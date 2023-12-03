@@ -80,6 +80,7 @@ namespace {
     wil::unique_registry_watcher registryWatcher;
     std::atomic<uint32_t> mode = 0;
     std::atomic<bool> ignoreEyeTracking = 0;
+    std::atomic<bool> invertYAxis = 0;
 
     std::chrono::time_point<std::chrono::steady_clock> lastGoodEyeTrackingDataTime{};
     std::optional<pvrEyeTrackingInfo> lastGoodEyeTrackingInfo;
@@ -115,6 +116,19 @@ namespace {
             ignoreEyeTracking.store(data);
         } else {
             ignoreEyeTracking.store(false);
+        }
+
+        retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                L"SOFTWARE\\FR-Utility",
+                                L"invert_y_axis",
+                                RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
+                                nullptr,
+                                &data,
+                                &dataSize);
+        if (retCode == ERROR_SUCCESS) {
+            invertYAxis.store(data);
+        } else {
+            invertYAxis.store(false);
         }
     }
 
@@ -371,6 +385,13 @@ namespace {
                 // Our gaze vector is normalized.
                 // This works well-enough.
                 outInfo->GazeTan[i] = {gaze.x, gaze.y};
+            }
+
+            // Some applications (like Unity) may render the image upside-down.
+            if (invertYAxis.load()) {
+                for (uint32_t i = 0; i < 2; i++) {
+                    outInfo->GazeTan[i].y = -outInfo->GazeTan[i].y - 0.5f;
+                }
             }
 
             if (isValid) {

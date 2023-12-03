@@ -43,9 +43,10 @@ namespace DFR_UI
             this.frBalanced = new System.Windows.Forms.RadioButton();
             this.frMinimum = new System.Windows.Forms.RadioButton();
             this.frDebug = new System.Windows.Forms.RadioButton();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.invertYAxis = new System.Windows.Forms.CheckBox();
             this.forceFixed = new System.Windows.Forms.CheckBox();
             this.frameTimeLabel = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -64,20 +65,20 @@ namespace DFR_UI
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(533, 292);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 56.18375F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 43.81625F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(533, 333);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // log
             // 
             this.log.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.log.Location = new System.Drawing.Point(3, 174);
+            this.log.Location = new System.Drawing.Point(3, 212);
             this.log.Multiline = true;
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(527, 115);
+            this.log.Size = new System.Drawing.Size(527, 118);
             this.log.TabIndex = 2;
             // 
             // flowLayoutPanel1
@@ -120,13 +121,14 @@ namespace DFR_UI
             this.flowLayoutPanel2.Controls.Add(this.frBalanced);
             this.flowLayoutPanel2.Controls.Add(this.frMinimum);
             this.flowLayoutPanel2.Controls.Add(this.frDebug);
+            this.flowLayoutPanel2.Controls.Add(this.invertYAxis);
             this.flowLayoutPanel2.Controls.Add(this.forceFixed);
             this.flowLayoutPanel2.Controls.Add(this.frameTimeLabel);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(2, 52);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(529, 117);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(529, 155);
             this.flowLayoutPanel2.TabIndex = 1;
             // 
             // labelMode
@@ -209,22 +211,30 @@ namespace DFR_UI
             this.frDebug.UseVisualStyleBackColor = true;
             this.frDebug.CheckedChanged += new System.EventHandler(this.frDebug_CheckedChanged);
             // 
-            // timer1
+            // invertYAxis
             // 
-            this.timer1.Enabled = true;
-            this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.invertYAxis.AutoSize = true;
+            this.invertYAxis.Enabled = false;
+            this.flowLayoutPanel2.SetFlowBreak(this.invertYAxis, true);
+            this.invertYAxis.Location = new System.Drawing.Point(10, 52);
+            this.invertYAxis.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
+            this.invertYAxis.Name = "invertYAxis";
+            this.invertYAxis.Size = new System.Drawing.Size(317, 17);
+            this.invertYAxis.TabIndex = 6;
+            this.invertYAxis.Text = "Invert vertical axis (corrects eye tracking in some applications)";
+            this.invertYAxis.UseVisualStyleBackColor = true;
+            this.invertYAxis.CheckedChanged += new System.EventHandler(this.invertYAxis_CheckedChanged);
             // 
             // forceFixed
             // 
             this.forceFixed.AutoSize = true;
             this.forceFixed.Enabled = false;
             this.flowLayoutPanel2.SetFlowBreak(this.forceFixed, true);
-            this.forceFixed.Location = new System.Drawing.Point(10, 52);
+            this.forceFixed.Location = new System.Drawing.Point(10, 80);
             this.forceFixed.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
             this.forceFixed.Name = "forceFixed";
             this.forceFixed.Size = new System.Drawing.Size(202, 17);
-            this.forceFixed.TabIndex = 6;
+            this.forceFixed.TabIndex = 7;
             this.forceFixed.Text = "Ignore eye tracking (when supported)";
             this.forceFixed.UseVisualStyleBackColor = true;
             this.forceFixed.CheckedChanged += new System.EventHandler(this.forceFixed_CheckedChanged);
@@ -233,17 +243,23 @@ namespace DFR_UI
             // 
             this.frameTimeLabel.AutoSize = true;
             this.flowLayoutPanel2.SetFlowBreak(this.frameTimeLabel, true);
-            this.frameTimeLabel.Location = new System.Drawing.Point(10, 80);
+            this.frameTimeLabel.Location = new System.Drawing.Point(10, 108);
             this.frameTimeLabel.Margin = new System.Windows.Forms.Padding(10, 8, 3, 0);
             this.frameTimeLabel.Name = "frameTimeLabel";
             this.frameTimeLabel.Size = new System.Drawing.Size(0, 13);
-            this.frameTimeLabel.TabIndex = 7;
+            this.frameTimeLabel.TabIndex = 8;
+            // 
+            // timer1
+            // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 292);
+            this.ClientSize = new System.Drawing.Size(533, 333);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -278,6 +294,7 @@ namespace DFR_UI
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox forceFixed;
         private System.Windows.Forms.Label frameTimeLabel;
+        private System.Windows.Forms.CheckBox invertYAxis;
     }
 }
 

@@ -124,13 +124,14 @@ namespace DFR_UI
                     frDebug.Checked = true;
                     break;
             }
+            invertYAxis.Checked = (int)SettingsKey.GetValue("invert_y_axis", 0) == 0 ? false : true;
             forceFixed.Checked = (int)SettingsKey.GetValue("ignore_eye_tracking", 0) == 0 ? false : true;
         }
 
         void SetEnabled(bool enabled)
         {
             reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled =
-                frMinimum.Enabled = frDebug.Enabled = forceFixed.Enabled = enabled;
+                frMinimum.Enabled = frDebug.Enabled = invertYAxis.Enabled = forceFixed.Enabled = enabled;
             if (!enabled)
             {
                 frameTimeLabel.Text = "";
@@ -254,6 +255,11 @@ namespace DFR_UI
         private void reattach_Click(object sender, EventArgs e)
         {
             MagicAttach(AttachedApplication);
+        }
+
+        private void invertYAxis_CheckedChanged(object sender, EventArgs e)
+        {
+            SettingsKey.SetValue("invert_y_axis", invertYAxis.Checked ? 1 : 0);
         }
 
         private void forceFixed_CheckedChanged(object sender, EventArgs e)
