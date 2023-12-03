@@ -16,3 +16,6 @@
 [submodule "tests/directx11_hellovr"]
 	path = tests/directx11_hellovr
 	url = https://github.com/mbucchia/directx11_hellovr.git
+[submodule "external/oscpack"]
+	path = external/oscpack
+	url = https://github.com/RossBencina/oscpack.git

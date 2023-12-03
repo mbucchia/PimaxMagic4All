@@ -159,7 +159,10 @@ namespace {
             // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
             createVirtualDesktopEyeTracker,
             // 3) Varjo only loads if Varjo Base is running.
-            createVarjoEyeTracker};
+            createVarjoEyeTracker,
+            // 4) Steam Link doesn't have any check.
+            createSteamLinkEyeTracker,
+        };
         for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
             eyeTracker = eyeTrackers[i]();
         }
