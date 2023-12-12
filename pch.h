@@ -60,6 +60,7 @@
 class OpenXrApi {};
 
 // FMT formatter.
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 // Pimax SDK

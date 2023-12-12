@@ -63,7 +63,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -102,7 +102,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -157,7 +157,6 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('packages\Detours.4.0.1\build\native\Detours.targets')" />
     <Import Project="packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="packages\fmt.7.0.1\build\fmt.targets" Condition="Exists('packages\fmt.7.0.1\build\fmt.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -165,6 +164,5 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     </PropertyGroup>
     <Error Condition="!Exists('packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Detours.4.0.1\build\native\Detours.targets'))" />
     <Error Condition="!Exists('packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Windows.ImplementationLibrary.1.0.230824.2\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
-    <Error Condition="!Exists('packages\fmt.7.0.1\build\fmt.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\fmt.7.0.1\build\fmt.targets'))" />
   </Target>
 </Project>

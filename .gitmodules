@@ -19,3 +19,6 @@
 [submodule "external/oscpack"]
 	path = external/oscpack
 	url = https://github.com/RossBencina/oscpack.git
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt.git
