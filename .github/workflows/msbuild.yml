@@ -40,7 +40,7 @@ jobs:
     - name: Build
       env:
         PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
-        PFX_NAME: "comodo"
+        PFX_NAME: ${{ env.PFX_NAME }}
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
         # Need to build vdproj. We must invoke this tool from inside its own folder.
