@@ -43,6 +43,9 @@
     <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\steam_link.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\psvr2_toolkit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

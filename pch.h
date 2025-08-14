@@ -46,6 +46,7 @@
 #include <traceloggingprovider.h>
 #include <wil/resource.h>
 #include <wil/registry.h>
+#include <WinSock2.h>
 
 // We don't use OpenXR, however we import code as-is from the OpenXR-Eye-Trackers project, therefore we need definitions
 // for OpenXR basic types (such as XrPosef or XrVector3f).

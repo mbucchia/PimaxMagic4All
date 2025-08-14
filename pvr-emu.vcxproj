@@ -63,7 +63,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\SDK\PSVR2Toolkit\projects\shared;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -102,7 +102,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\SDK\PVR;$(SolutionDir)\SDK\OpenVR;$(SolutionDir)\SDK\Varjo\include;$(SolutionDir)\SDK\Omnicept\include;$(SolutionDir)\SDK\PSVR2Toolkit\projects\shared;$(SolutionDir)\external\OpenXR-Eye-Trackers\openxr-api-layer;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-MixedReality\openxr_preview\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -142,6 +142,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\omnicept.cpp" />
+    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\psvr2_toolkit.cpp" />
     <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\steam_link.cpp" />
     <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\varjo.cpp" />
     <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\virtual_desktop.cpp" />

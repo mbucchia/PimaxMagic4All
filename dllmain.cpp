@@ -172,9 +172,11 @@ namespace {
             createOmniceptEyeTracker,
             // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
             createVirtualDesktopEyeTracker,
-            // 3) Varjo only loads if Varjo Base is running.
+            // 3) PSVR2 Toolkit driver for SteamVR shall only be loaded if the toolkit is loaded.
+            createPsvr2ToolkitEyeTracker,
+            // 4) Varjo only loads if Varjo Base is running.
             createVarjoEyeTracker,
-            // 4) Steam Link doesn't have any check.
+            // 5) Steam Link doesn't have any check.
             createSteamLinkEyeTracker,
         };
         for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {

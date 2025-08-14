@@ -22,3 +22,6 @@
 [submodule "external/fmt"]
 	path = external/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "SDK/PSVR2Toolkit"]
+	path = SDK/PSVR2Toolkit
+	url = https://github.com/BnuuySolutions/PSVR2Toolkit.git
