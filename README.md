@@ -14,15 +14,7 @@ Pimax is a Virtual Reality headset vendor who most recently released the [Pimax 
 
 **PLEASE READ ALL THE INSTRUCTIONS BELOW CAREFULLY.**
 
-1) Install [Pimax Play](https://pimax.com/pimax-pc) from the Pimax website. This is temporary, you can uninstall it after we grab the necessary files.
-**At time of writing, Pimax Play 1.16 was successfully tested.**
-
-2) Download the Foveated Rendering Utility from the [Releases](https://github.com/mbucchia/PimaxMagic4All/releases) page. Unzip the Foveated Rendering Utility in the folder of your choice.
-
-3) Go to `%ProgramFiles%\Pimax\Runtime` and copy the `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` files into the folder created in step 2). 
-**The `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` shall be next to the `DFR-UI.exe` file.**
-
-4) You can now uninstall Pimax Play.
+Download the Foveated Rendering Utility from the [Releases](https://github.com/mbucchia/PimaxMagic4All/releases) page. Unzip the Foveated Rendering Utility in the folder of your choice.
 
 Please refer to the wiki for additional steps specific to your headset in order to enable eye tracking (when applicable).
 
@@ -47,3 +39,15 @@ If all went well, you will now have foveated rendering in your app. In case of d
 - Restart the `DFR-UI.exe` utility.
 
 - Try pressing the "Try Re-Attach" button.
+
+## Updating the LibMagic DLLs
+
+You probably don't need to do this, but just in case Pimax publishes significant fixes/improvements...
+
+1) Install [Pimax Play](https://pimax.com/pimax-pc) from the Pimax website. This is temporary, you can uninstall it after we grab the necessary files.
+**At time of writing, Pimax Play 1.16 was successfully tested.**
+
+2) Go to `%ProgramFiles%\Pimax\Runtime` and copy the `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` files into the folder where you installed the Foveated Rendering Utility.
+**The `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` shall be next to the `DFR-UI.exe` file.**
+
+3) You can now uninstall Pimax Play.

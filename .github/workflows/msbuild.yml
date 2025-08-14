@@ -57,7 +57,7 @@ jobs:
         copy THIRD_PARTY bin\x64\Release\
 
     - name: Publish
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: PimaxMagic4All
         path: |
@@ -72,3 +72,5 @@ jobs:
           bin/x64/Release/PvrEmu.wprp
           bin/x64/Release/README.md
           bin/x64/Release/THIRD_PARTY
+          bin/x64/Release/LibMagicD3D1164.dll
+          bin/x64/Release/MagicAttach_x64.exe
