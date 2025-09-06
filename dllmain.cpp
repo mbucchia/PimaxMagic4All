@@ -166,19 +166,32 @@ namespace {
             Log("Unable to retrieve IVRSystem, projection may be inaccurate\n");
         }
 
+        char systemName[256];
+        openvrSystem->GetStringTrackedDeviceProperty(
+            vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DriverVersion_String, systemName, sizeof(systemName));
+
+        std::vector<std::function<std::unique_ptr<IEyeTracker>()>> eyeTrackers;
+
         // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
-        std::function<std::unique_ptr<IEyeTracker>()> eyeTrackers[] = {
-            // 1) Omnicept uses a background service, it is not likely to be installed if the device is not used.
-            createOmniceptEyeTracker,
-            // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
-            createVirtualDesktopEyeTracker,
-            // 3) PSVR2 Toolkit driver for SteamVR shall only be loaded if the toolkit is loaded.
-            createPsvr2ToolkitEyeTracker,
-            // 4) Varjo only loads if Varjo Base is running.
-            createVarjoEyeTracker,
-            // 5) Steam Link doesn't have any check.
-            createSteamLinkEyeTracker,
-        };
+
+        // 1) Omnicept uses a background service, it is not likely to be installed if the device is not used.
+        eyeTrackers.push_back(createOmniceptEyeTracker);
+
+        // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
+        eyeTrackers.push_back(createVirtualDesktopEyeTracker);
+
+        // 3) PSVR2 Toolkit driver for SteamVR shall only be loaded if the toolkit is loaded.
+        eyeTrackers.push_back(createPsvr2ToolkitEyeTracker);
+
+        // 4) Varjo only loads if Varjo Base is running.
+        eyeTrackers.push_back(createVarjoEyeTracker);
+
+        if (systemName[0] == 'S' && systemName[1] == 'L' && systemName[2] == ',') {
+            // 5) Steam Link doesn't have any check, so use the driver version property to detect whether we should
+            // enable it.
+            eyeTrackers.push_back(createSteamLinkEyeTracker);
+        }
+
         for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
             eyeTracker = eyeTrackers[i]();
         }
