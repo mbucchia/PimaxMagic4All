@@ -139,6 +139,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="external\OpenXR-Eye-Trackers\openxr-api-layer\trackers.h" />
+    <ClInclude Include="external\OpenXR-Eye-Trackers\openxr-api-layer\utils.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="util.h" />
