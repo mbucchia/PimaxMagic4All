@@ -31,6 +31,7 @@
 #include <fstream>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -51,14 +52,20 @@
 
 // OpenXR SDK.
 #define XR_USE_PLATFORM_WIN32
+#define XR_USE_GRAPHICS_API_D3D11
+#include <dxgi.h>
+#include <d3d11.h>
 #include <openxr/openxr.h>
 #include <openxr/openxr_platform.h>
 
 // OpenXR Utilities.
-#include <XrError.h>
-#include <XrMath.h>
-#include <XrStereoView.h>
-#include <XrToString.h>
+#include <SampleShared/XrInstanceContext.h>
+#include <SampleShared/XrSessionContext.h>
+#include <SampleShared/XrSystemContext.h>
+#include <XrUtility/XrError.h>
+#include <XrUtility/XrMath.h>
+#include <XrUtility/XrExtensionContext.h>
+#include <XrUtility/XrToString.h>
 
 // FMT formatter.
 #define FMT_HEADER_ONLY

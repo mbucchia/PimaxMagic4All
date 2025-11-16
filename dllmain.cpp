@@ -174,7 +174,8 @@ namespace {
 
         // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
 
-        // TODO: OpenXR headless
+        // SteamVR OpenXR only loads if SteamVR OpenXR returns supportsEyeGazeInteraction.
+        eyeTrackers.push_back(createSteamVrEyeTracker);
 
         // Varjo only loads if Varjo Base is running.
         eyeTrackers.push_back(createVarjoEyeTracker);

@@ -45,6 +45,24 @@ namespace xr {
 
 namespace util {
 
+    static inline bool StartsWith(const std::string& str, const std::string& substr) {
+        return str.find(substr) == 0;
+    }
+
+    static inline bool StartsWith(const std::wstring& str, const std::wstring& substr) {
+        return str.find(substr) == 0;
+    }
+
+    static inline bool EndsWith(const std::string& str, const std::string& substr) {
+        const auto pos = str.find(substr);
+        return pos != std::string::npos && pos == str.size() - substr.size();
+    }
+
+    static inline bool EndsWith(const std::wstring& str, const std::wstring& substr) {
+        const auto pos = str.find(substr);
+        return pos != std::wstring::npos && pos == str.size() - substr.size();
+    }
+
     template <typename TMethod>
     void DetourDllAttach(const char* dll, const char* target, TMethod hooked, TMethod& original) {
         if (original) {

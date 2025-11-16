@@ -27,10 +27,11 @@
 
 #include "trackers.h"
 
-namespace trackers {
+namespace {
 
     using namespace logging;
     using namespace util;
+    using namespace trackers;
 
     namespace {
 
@@ -139,6 +140,10 @@ namespace trackers {
 
         varjo_Session* m_varjoSession{nullptr};
     };
+
+} // namespace
+
+namespace trackers {
 
     std::unique_ptr<IEyeTracker> createVarjoEyeTracker() {
         try {

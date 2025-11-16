@@ -63,7 +63,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\OpenVR;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\OpenXR-SDK\include\;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\OpenVR;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\OpenXR-SDK\include\;$(SolutionDir)\external\OpenXR-MixedReality\Shared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -71,8 +71,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib;$(SolutionDir)\external\Omnicept\lib\$(Configuration)\msvc2019_64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>varjolib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib;$(SolutionDir)\external\OpenXR-Loader\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>varjolib.lib;openxr_loader.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib.dll $(OutDir)
@@ -103,7 +103,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\OpenVR;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\OpenXR-SDK\include\;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\OpenVR;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\OpenXR-SDK\include\;$(SolutionDir)\external\OpenXR-MixedReality\Shared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -113,8 +113,8 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib;$(SolutionDir)\external\Omnicept\lib\$(Configuration)\msvc2019_64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>varjolib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib;$(SolutionDir)\external\OpenXR-Loader\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>varjolib.lib;openxr_loader.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib.dll $(OutDir)
@@ -143,6 +143,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="steamvr.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

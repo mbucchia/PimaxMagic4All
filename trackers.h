@@ -40,8 +40,7 @@ namespace trackers {
         virtual std::string getType() const = 0;
     };
 
-    std::unique_ptr<IEyeTracker> createSimulatedEyeTracker();
-    std::unique_ptr<IEyeTracker> createOpenXrTracker();
+    std::unique_ptr<IEyeTracker> createSteamVrEyeTracker();
     std::unique_ptr<IEyeTracker> createVarjoEyeTracker();
 
 } // namespace trackers
