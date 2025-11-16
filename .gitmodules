@@ -1,27 +1,18 @@
-[submodule "SDK/PVR"]
-	path = SDK/PVR
+[submodule "external/PVR"]
+	path = external/PVR
 	url = https://github.com/mbucchia/PVR.git
-[submodule "SDK/Varjo"]
-	path = SDK/Varjo
+[submodule "external/Varjo"]
+	path = external/Varjo
 	url = https://github.com/mbucchia/Varjo-SDK.git
-[submodule "external/OpenXR-Eye-Trackers"]
-	path = external/OpenXR-Eye-Trackers
-	url = https://github.com/mbucchia/OpenXR-Eye-Trackers.git
-[submodule "SDK/Omnicept"]
-	path = SDK/Omnicept
-	url = https://github.com/mbucchia/Omnicept-SDK.git
 [submodule "external/OpenXR-MixedReality"]
 	path = external/OpenXR-MixedReality
 	url = https://github.com/mbucchia/OpenXR-MixedReality.git
 [submodule "tests/directx11_hellovr"]
 	path = tests/directx11_hellovr
 	url = https://github.com/mbucchia/directx11_hellovr.git
-[submodule "external/oscpack"]
-	path = external/oscpack
-	url = https://github.com/RossBencina/oscpack.git
 [submodule "external/fmt"]
 	path = external/fmt
 	url = https://github.com/fmtlib/fmt.git
-[submodule "SDK/PSVR2Toolkit"]
-	path = SDK/PSVR2Toolkit
-	url = https://github.com/BnuuySolutions/PSVR2Toolkit.git
+[submodule "external/OpenXR-SDK"]
+	path = external/OpenXR-SDK
+	url = https://github.com/KhronosGroup/OpenXR-SDK.git

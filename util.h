@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright(c) 2022-2023 Matthieu Bucchianeri
+// Copyright(c) 2022-2025 Matthieu Bucchianeri
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this softwareand associated documentation files(the "Software"), to deal
@@ -9,7 +9,7 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
 //
-// The above copyright noticeand this permission notice shall be included in all
+// The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -42,3 +42,44 @@ namespace xr {
     }
 
 } // namespace xr
+
+namespace util {
+
+    template <typename TMethod>
+    void DetourDllAttach(const char* dll, const char* target, TMethod hooked, TMethod& original) {
+        if (original) {
+            // Already hooked.
+            return;
+        }
+
+        HMODULE handle;
+        CHECK_MSG(GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN, dll, &handle), "GetModuleHandleExA failed");
+
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
+
+        original = (TMethod)GetProcAddress(handle, target);
+        CHECK_MSG(original, "GetProcAddress failed");
+        DetourAttach((PVOID*)&original, hooked);
+
+        CHECK_MSG(DetourTransactionCommit() == NO_ERROR, "DetourTransactionCommit failed");
+    }
+
+    template <typename TMethod>
+    void DetourDllDetach(const char* dll, const char* target, TMethod hooked, TMethod& original) {
+        if (!original) {
+            // Not hooked.
+            return;
+        }
+
+        DetourTransactionBegin();
+        DetourUpdateThread(GetCurrentThread());
+
+        DetourDetach((PVOID*)&original, hooked);
+
+        CHECK_MSG(DetourTransactionCommit() == NO_ERROR, "DetourTransactionCommit failed");
+
+        original = nullptr;
+    }
+
+} // namespace util

@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright(c) 2023 Matthieu Bucchianeri
+// Copyright(c) 2023-2025 Matthieu Bucchianeri
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this softwareand associated documentation files(the "Software"), to deal
@@ -9,7 +9,7 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
 //
-// The above copyright noticeand this permission notice shall be included in all
+// The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -23,16 +23,16 @@
 #include "pch.h"
 
 #include "log.h"
-using namespace openxr_api_layer::log;
+#include "trackers.h"
 
-#include <trackers.h>
-using namespace openxr_api_layer;
+using namespace logging;
+using namespace trackers;
 
 //
 // Log file helpers.
 //
 
-namespace openxr_api_layer::log {
+namespace logging {
     // {cbf3adcd-42b9-4c38-830b-91980af201f6}
     TRACELOGGING_DEFINE_PROVIDER(g_traceProvider,
                                  "PvrEmu",
@@ -67,7 +67,7 @@ namespace openxr_api_layer::log {
         va_end(va);
     }
 
-} // namespace openxr_api_layer::log
+} // namespace log
 
 //
 // And now, the real stuff.
@@ -174,32 +174,18 @@ namespace {
 
         // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
 
-        // 1) Omnicept uses a background service, it is not likely to be installed if the device is not used.
-        eyeTrackers.push_back(createOmniceptEyeTracker);
+        // TODO: OpenXR headless
 
-        // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
-        eyeTrackers.push_back(createVirtualDesktopEyeTracker);
-
-        // 3) PSVR2 Toolkit driver for SteamVR shall only be loaded if the toolkit is loaded.
-        eyeTrackers.push_back(createPsvr2ToolkitEyeTracker);
-
-        // 4) Varjo only loads if Varjo Base is running.
+        // Varjo only loads if Varjo Base is running.
         eyeTrackers.push_back(createVarjoEyeTracker);
-
-        if (systemName[0] == 'S' && systemName[1] == 'L' && systemName[2] == ',') {
-            // 5) Steam Link doesn't have any check, so use the driver version property to detect whether we should
-            // enable it.
-            eyeTrackers.push_back(createSteamLinkEyeTracker);
-        }
 
         for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
             eyeTracker = eyeTrackers[i]();
         }
 
         if (eyeTracker) {
-            TraceLoggingWrite(
-                g_traceProvider, "EyeTracker", TLArg(getTrackerType(eyeTracker->getType()).c_str(), "Type"));
-            Log(fmt::format("Using eye tracking: {}\n", getTrackerType(eyeTracker->getType())));
+            TraceLoggingWrite(g_traceProvider, "EyeTracker", TLArg(eyeTracker->getType().c_str(), "Type"));
+            Log(fmt::format("Using eye tracking: {}\n", eyeTracker->getType().c_str()));
         } else {
             Log("No supported eye tracking device found\n");
         }
@@ -232,7 +218,7 @@ namespace {
 
         // Initialize eye tracking.
         if (eyeTracker) {
-            eyeTracker->start(XR_NULL_HANDLE);
+            eyeTracker->start();
         }
 
         // Any fake handle.
