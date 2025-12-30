@@ -191,8 +191,8 @@ namespace {
             // enable it.
             eyeTrackers.push_back(createSteamLinkEyeTracker);
         } else {
+            // 6) If Steam Link is undetected, we fall back to OSC for use with Bigscreen and Project Babble solutions.
             eyeTrackers.push_back(createVRChatOSCEyeTracker);
-            // 6) If Steam Link is undetected, we fall back to OSC for use with Bigscreen and Project Babble solutions
         }
 
         for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
