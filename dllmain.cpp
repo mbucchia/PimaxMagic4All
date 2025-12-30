@@ -190,6 +190,9 @@ namespace {
             // 5) Steam Link doesn't have any check, so use the driver version property to detect whether we should
             // enable it.
             eyeTrackers.push_back(createSteamLinkEyeTracker);
+        } else {
+            eyeTrackers.push_back(createVRChatOSCEyeTracker);
+            // 6) If Steam Link is undetected, we fall back to OSC for use with Bigscreen and Project Babble solutions
         }
 
         for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
