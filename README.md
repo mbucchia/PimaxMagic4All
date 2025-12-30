@@ -51,3 +51,7 @@ You probably don't need to do this, but just in case Pimax publishes significant
 **The `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` shall be next to the `DFR-UI.exe` file.**
 
 3) You can now uninstall Pimax Play.
+
+## Special thanks
+
+Thanks to Tymon Lindell (Ridge) for adding support for the Bigscreen Beyond 2e and VanishedMC for beta testing on Bigscreen Beyond 2e.
