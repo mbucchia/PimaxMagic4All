@@ -26,6 +26,7 @@ namespace DFR_UI
         CVRCompositor VrCompositor;
         string PathToMagicAttach;
         uint AttachedApplication = 0;
+        string AttachedApplicationName = null;
         Microsoft.Win32.RegistryKey SettingsKey;
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -106,24 +107,6 @@ namespace DFR_UI
             }
 
             SettingsKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\FR-Utility");
-            switch ((int)SettingsKey.GetValue("mode", 0))
-            {
-                case 0:
-                    frOff.Checked = true;
-                    break;
-                case 1:
-                    frMaximum.Checked = true;
-                    break;
-                case 2:
-                    frBalanced.Checked = true;
-                    break;
-                case 3:
-                    frMinimum.Checked = true;
-                    break;
-                case 4:
-                    frDebug.Checked = true;
-                    break;
-            }
             invertYAxis.Checked = (int)SettingsKey.GetValue("invert_y_axis", 0) == 0 ? false : true;
             forceFixed.Checked = (int)SettingsKey.GetValue("ignore_eye_tracking", 0) == 0 ? false : true;
         }
@@ -174,6 +157,9 @@ namespace DFR_UI
 
                         MagicAttach(pid);
                         AttachedApplication = pid;
+                        AttachedApplicationName = appName;
+
+                        loadApplicationMode();
                     }
                 }
                 else
@@ -227,29 +213,51 @@ namespace DFR_UI
             }
         }
 
+        private void loadApplicationMode()
+        {
+            switch ((int)SettingsKey.GetValue(AttachedApplicationName, 0))
+            {
+                case 0:
+                    frOff.Checked = true;
+                    break;
+                case 1:
+                    frMaximum.Checked = true;
+                    break;
+                case 2:
+                    frBalanced.Checked = true;
+                    break;
+                case 3:
+                    frMinimum.Checked = true;
+                    break;
+                case 4:
+                    frDebug.Checked = true;
+                    break;
+            }
+        }
+
         private void frOff_CheckedChanged(object sender, EventArgs e)
         {
-            SettingsKey.SetValue("mode", 0);
+            SettingsKey.SetValue(AttachedApplicationName, 0);
         }
 
         private void frMaximum_CheckedChanged(object sender, EventArgs e)
         {
-            SettingsKey.SetValue("mode", 1);
+            SettingsKey.SetValue(AttachedApplicationName, 1);
         }
 
         private void frBalanced_CheckedChanged(object sender, EventArgs e)
         {
-            SettingsKey.SetValue("mode", 2);
+            SettingsKey.SetValue(AttachedApplicationName, 2);
         }
 
         private void frMinimum_CheckedChanged(object sender, EventArgs e)
         {
-            SettingsKey.SetValue("mode", 3);
+            SettingsKey.SetValue(AttachedApplicationName, 3);
         }
 
         private void frDebug_CheckedChanged(object sender, EventArgs e)
         {
-            SettingsKey.SetValue("mode", 4);
+            SettingsKey.SetValue(AttachedApplicationName, 4);
         }
 
         private void reattach_Click(object sender, EventArgs e)

@@ -26,6 +26,7 @@
 using namespace openxr_api_layer::log;
 
 #include <trackers.h>
+#include "util.h"
 using namespace openxr_api_layer;
 
 //
@@ -86,6 +87,9 @@ namespace {
     std::optional<pvrEyeTrackingInfo> lastGoodEyeTrackingInfo;
 
     vr::IVRSystem* openvrSystem = nullptr;
+    vr::IVRApplications* openvrApplications = nullptr;
+
+    std::wstring applicationName = L"";
 
     void updateMode() {
         DWORD data{};
@@ -94,7 +98,7 @@ namespace {
 
         retCode = ::RegGetValue(HKEY_CURRENT_USER,
                                 L"SOFTWARE\\FR-Utility",
-                                L"mode",
+                                 applicationName.c_str(),
                                 RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
                                 nullptr,
                                 &data,
@@ -159,12 +163,28 @@ namespace {
             if (pfnVR_GetGenericInterface) {
                 vr::EVRInitError error;
                 openvrSystem = (vr::IVRSystem*)pfnVR_GetGenericInterface("IVRSystem_022", &error);
+                openvrApplications = (vr::IVRApplications*)pfnVR_GetGenericInterface("IVRApplications_007", &error);
             }
         }
 
         if (!openvrSystem) {
             Log("Unable to retrieve IVRSystem, projection may be inaccurate\n");
         }
+
+        if (!openvrApplications) {
+            Log("Unable to retrieve IVRApplications\n");
+        }
+
+        char appKey[vr::k_unMaxApplicationKeyLength];
+        openvrApplications->GetApplicationKeyByProcessId(
+            openvrApplications->GetCurrentSceneProcessId(), appKey, sizeof(appKey));
+
+        char appName[vr::k_unMaxPropertyStringSize];
+        vr::EVRApplicationError error;
+        openvrApplications->GetApplicationPropertyString(
+            appKey, vr::EVRApplicationProperty::VRApplicationProperty_Name_String, appName, sizeof(appName), &error);
+
+        applicationName = xr::Utf8ToWide(appName);
 
         char systemName[256];
         openvrSystem->GetStringTrackedDeviceProperty(
