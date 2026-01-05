@@ -41,4 +41,12 @@ namespace xr {
         return fmt::format("({:.3f}, {:.3f}, {:.3f})", vec.x, vec.y, vec.z);
     }
 
+
+    static std::wstring Utf8ToWide(const std::string& s) {
+        int len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, nullptr, 0);
+
+        std::wstring ws(len - 1, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, s.c_str(), -1, ws.data(), len);
+        return ws;
+    }
 } // namespace xr
