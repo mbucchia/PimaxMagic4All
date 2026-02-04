@@ -16,6 +16,30 @@ namespace DFR_UI
 {
     public partial class MainForm : Form
     {
+        private uint ReadUInt32Setting(string name, uint defaultValue = 0u)
+        {
+            if (SettingsKey == null)
+            {
+                return defaultValue;
+            }
+
+            object val = SettingsKey.GetValue(name, defaultValue);
+            if (val is uint ui) return ui;
+            if (val is int i) return unchecked((uint)i);
+            if (val is long l) return unchecked((uint)l);
+            if (val is short s) return unchecked((uint)s);
+            if (val is string str && uint.TryParse(str, out var parsed)) return parsed;
+
+            try
+            {
+                // Fallback: attempt a conversion (handles other numeric types).
+                return Convert.ToUInt32(val);
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
         public MainForm()
         {
             InitializeComponent();
@@ -26,10 +50,24 @@ namespace DFR_UI
         CVRCompositor VrCompositor;
         string PathToMagicAttach;
         uint AttachedApplication = 0;
-        Microsoft.Win32.RegistryKey SettingsKey;
+        Microsoft.Win32.RegistryKey SettingsKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\FR-Utility");
+        UInt32 AvailableEyeTrackers;
+        bool[] AvailableEyeTrackersBool = new bool[6];
+        private static readonly string[] EyeTrackerNames =
+            {
+                "HP Omnicept",          // 0
+                "Virtual Desktop",    // 1
+                "PSVR2 Toolkit",      // 2
+                "Varjo",             // 3
+                "Steam Link",         // 4
+                "VRChat OSC"                // 5
+            };
+
+        
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            SettingsKey.SetValue("force_eye_tracking_source", 0);
             this.Text += " v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             var assembly = Assembly.GetAssembly(GetType());
@@ -105,7 +143,6 @@ namespace DFR_UI
                 this.WindowState = FormWindowState.Normal;
             }
 
-            SettingsKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\FR-Utility");
             switch ((int)SettingsKey.GetValue("mode", 0))
             {
                 case 0:
@@ -126,20 +163,54 @@ namespace DFR_UI
             }
             invertYAxis.Checked = (int)SettingsKey.GetValue("invert_y_axis", 0) == 0 ? false : true;
             forceFixed.Checked = (int)SettingsKey.GetValue("ignore_eye_tracking", 0) == 0 ? false : true;
+            forceSource.Checked = (int)SettingsKey.GetValue("force_eye_tracking_source", 0) == 0 ? false : true;
+            sourceList.SelectedItem = (string)SettingsKey.GetValue("eye_tracking_source_name", "");
         }
 
         void SetEnabled(bool enabled)
         {
             reattach.Enabled = labelMode.Enabled = frOff.Enabled = frMaximum.Enabled = frBalanced.Enabled =
-                frMinimum.Enabled = frDebug.Enabled = invertYAxis.Enabled = forceFixed.Enabled = enabled;
+                frMinimum.Enabled = frDebug.Enabled = invertYAxis.Enabled = forceFixed.Enabled = sourceList.Enabled = enabled;
             if (!enabled)
             {
                 frameTimeLabel.Text = "";
             }
         }
 
+        private void updateAvailableSources()
+        {
+            string saved = sourceList.GetItemText(sourceList.SelectedItem);
+
+            sourceList.BeginUpdate(); // prevent flicker
+            sourceList.Items.Clear();
+
+            for (int i = 0; i < EyeTrackerNames.Length; i++)
+            {
+                if ((AvailableEyeTrackers & (1u << i)) != 0)
+                {
+                    sourceList.Items.Add(EyeTrackerNames[i]);
+                }
+            }
+
+            // Restore selection only if possible
+            if (sourceList.Items.Contains(saved))
+            {
+                sourceList.SelectedItem = saved;
+            }
+            else if (sourceList.Items.Count > 0)
+            {
+                sourceList.SelectedIndex = 0;
+            }
+
+            sourceList.EndUpdate();
+        }
+
+
         private void timer1_Tick(object sender, EventArgs e)
         {
+            AvailableEyeTrackers = ReadUInt32Setting("available_eye_trackers", 0u);
+            updateAvailableSources();
+
             if (VrSystem == null || VrApplications == null || VrCompositor == null)
             {
                 EVRInitError error = EVRInitError.Unknown;
@@ -205,6 +276,7 @@ namespace DFR_UI
                 if (VrCompositor.GetFrameTiming(ref timing, 0) && timing.m_flPreSubmitGpuMs > 0.0001f)
                 {
                     frameTimeLabel.Text = "Application GPU frame time: " + (timing.m_flPreSubmitGpuMs + timing.m_flPostSubmitGpuMs).ToString("#.#") + "ms\n(for informational purposes only)";
+                    frameTimeLabel.Location = new System.Drawing.Point(365, 108);
                 }
             }
         }
@@ -265,6 +337,17 @@ namespace DFR_UI
         private void forceFixed_CheckedChanged(object sender, EventArgs e)
         {
             SettingsKey.SetValue("ignore_eye_tracking", forceFixed.Checked ? 1 : 0);
+        }
+
+        private void forceSource_CheckedChanged(Object sender, EventArgs e)
+        {
+            SettingsKey.SetValue("force_eye_tracking_source", forceSource.Checked ? 1 : 0);
+        }
+
+        private void sourceList_SelectionChangeCommitted (object sender, EventArgs e)
+        {
+            forceSource.Enabled = !(sourceList.SelectedIndex == -1);
+            SettingsKey.SetValue("eye_tracking_source_name", sourceList.GetItemText(sourceList.SelectedItem));
         }
 
         // https://stackoverflow.com/questions/968935/compare-binary-files-in-c-sharp

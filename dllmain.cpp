@@ -28,6 +28,8 @@ using namespace openxr_api_layer::log;
 #include <trackers.h>
 using namespace openxr_api_layer;
 
+#include <mutex>
+
 //
 // Log file helpers.
 //
@@ -76,16 +78,160 @@ namespace openxr_api_layer::log {
 namespace {
 
     std::unique_ptr<IEyeTracker> eyeTracker;
+    std::unique_ptr<IEyeTracker> oldEyeTracker;
 
     wil::unique_registry_watcher registryWatcher;
-    std::atomic<uint32_t> mode = 0;
+    std::atomic<uint32_t> mode = 0u;
+    std::atomic<uint32_t> availableTrackers = 0u;
     std::atomic<bool> ignoreEyeTracking = 0;
     std::atomic<bool> invertYAxis = 0;
+    std::atomic<bool> forceEyeTrackingSource = 0;
+
+
+    std::mutex registrySettingsMutex;
+    std::string sourceName = "null";
 
     std::chrono::time_point<std::chrono::steady_clock> lastGoodEyeTrackingDataTime{};
     std::optional<pvrEyeTrackingInfo> lastGoodEyeTrackingInfo;
 
     vr::IVRSystem* openvrSystem = nullptr;
+
+    static std::string WideToUtf8(const std::wstring& w) {
+        if (w.empty())
+            return {};
+
+        // Cut at first embedded null (registry buffer may include terminator)
+        size_t effectiveLen = w.find(L'\0');
+        if (effectiveLen == std::wstring::npos) {
+            effectiveLen = w.size();
+        }
+
+        int required =
+            WideCharToMultiByte(CP_UTF8, 0, w.data(), static_cast<int>(effectiveLen), nullptr, 0, nullptr, nullptr);
+
+        if (required <= 0)
+            return {};
+
+        std::string s(required, '\0');
+        WideCharToMultiByte(CP_UTF8, 0, w.data(), static_cast<int>(effectiveLen), &s[0], required, nullptr, nullptr);
+
+        return s;
+    }
+
+    void reinitializeEyetrackers() {
+
+        char systemName[256];
+
+        if (openvrSystem) {
+            openvrSystem->GetStringTrackedDeviceProperty(
+                vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DriverVersion_String, systemName, sizeof(systemName));
+        } else {
+            // Not available yet — log and continue. reinitializeEyetrackers may be retried later.
+            Log("openvrSystem not available when reinitializing eye trackers\n");
+            systemName[0] = '\0';
+        }
+
+        std::vector<std::function<std::unique_ptr<IEyeTracker>()>> eyeTrackers;
+
+        // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
+
+        // 1) Omnicept uses a background service, it is not likely to be installed if the device is not used.
+        eyeTrackers.push_back(createOmniceptEyeTracker);
+
+        // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
+        eyeTrackers.push_back(createVirtualDesktopEyeTracker);
+
+        // 3) PSVR2 Toolkit driver for SteamVR shall only be loaded if the toolkit is loaded.
+        eyeTrackers.push_back(createPsvr2ToolkitEyeTracker);
+
+        // 4) Varjo only loads if Varjo Base is running.
+        eyeTrackers.push_back(createVarjoEyeTracker);
+
+        if (systemName[0] == 'S' && systemName[1] == 'L' && systemName[2] == ',') {
+            // 5) Steam Link doesn't have any check, so use the driver version property to detect whether we should
+            // enable it.
+            eyeTrackers.push_back(createSteamLinkEyeTracker);
+        } else {
+            eyeTrackers.push_back({});
+        }
+
+        // 6) If Steam Link is undetected, we fall back to OSC for use with Bigscreen and Project Babble solutions.
+        eyeTrackers.push_back(createVRChatOSCEyeTracker);
+
+        oldEyeTracker = std::move(eyeTracker);
+
+        if (forceEyeTrackingSource.load() == 0) {
+            Log("Auto-detecting eye tracking source\n");
+            for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
+                eyeTracker = eyeTrackers[i]();
+            }
+        } else {
+            uint32_t i;
+            if (sourceName == "HP Omnicept") {
+                i = 0;
+            } else if (sourceName == "Virtual Desktop") {
+                i = 1;
+            } else if (sourceName == "PSVR2 Toolkit") {
+                i = 2;
+            } else if (sourceName == "Varjo") {
+                i = 3;
+            } else if (sourceName == "Steam Link") {
+                i = 4;
+            } else if (sourceName == "VRChat OSC") {
+                i = 5;
+            } else {
+                i = std::size(eyeTrackers); // invalid
+            }
+            if (i < eyeTrackers.size() && eyeTrackers[i]) {
+                eyeTracker = eyeTrackers[i]();
+            } else {
+                eyeTracker.reset();
+            }
+
+        }
+
+        for (uint32_t i = 0; i < eyeTrackers.size(); ++i) {
+            if (!eyeTrackers[i]) {
+                continue;
+            }
+
+            std::unique_ptr<IEyeTracker> probe = eyeTrackers[i]();
+            if (probe) {
+                availableTrackers |= (1u << i);
+            }
+        }
+
+        uint32_t trackers = availableTrackers.load();
+        LSTATUS ret = ::RegSetKeyValueW(HKEY_CURRENT_USER,
+                                        L"SOFTWARE\\FR-Utility",
+                                        L"available_eye_trackers",
+                                        REG_DWORD,
+                                        &trackers,
+                                        sizeof(trackers));
+
+        if (ret != ERROR_SUCCESS) {
+            Log("RegSetKeyValueW failed: %ld\n", (long)ret);
+        }
+
+        if (oldEyeTracker != eyeTracker) {
+            if (eyeTracker) {
+                TraceLoggingWrite(
+                    g_traceProvider, "EyeTracker", TLArg(getTrackerType(eyeTracker->getType()).c_str(), "Type"));
+                Log(fmt::format("Using eye tracking: {}\n", getTrackerType(eyeTracker->getType())));
+            } else {
+                Log("No supported eye tracking device found\n");
+            }
+        }   
+        
+        if (oldEyeTracker && oldEyeTracker != eyeTracker) {
+            oldEyeTracker->stop();
+            oldEyeTracker.reset();
+        }
+
+        if (eyeTracker) {
+            eyeTracker->start(XR_NULL_HANDLE);
+        }
+    }
 
     void updateMode() {
         DWORD data{};
@@ -130,6 +276,50 @@ namespace {
         } else {
             invertYAxis.store(false);
         }
+
+        retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                L"SOFTWARE\\FR-Utility",
+                                L"force_eye_tracking_source",
+                                RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
+                                nullptr,
+                                &data,
+                                &dataSize);
+        if (retCode == ERROR_SUCCESS) {
+            forceEyeTrackingSource.store(data);
+        } else {
+            forceEyeTrackingSource.store(false);
+        }
+
+        std::lock_guard<std::mutex> lock(registrySettingsMutex);
+
+        retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                L"SOFTWARE\\FR-Utility",
+                                L"eye_tracking_source_name",
+                                RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_SZ, // note: REG_SZ not DWORD
+                                nullptr,
+                                nullptr,
+                                &dataSize); // first call to get size
+
+        if (retCode == ERROR_SUCCESS) {
+            std::wstring buffer(dataSize / sizeof(wchar_t), L'\0');
+            retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                    L"SOFTWARE\\FR-Utility",
+                                    L"eye_tracking_source_name",
+                                    RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_SZ,
+                                    nullptr,
+                                    buffer.data(),
+                                    &dataSize);
+
+            if (retCode == ERROR_SUCCESS) {
+                sourceName = WideToUtf8(buffer);
+            } else {
+                sourceName = "null";
+            }
+        } else {
+            sourceName = "null";
+        }
+
+        reinitializeEyetrackers();
     }
 
     pvrResult emulate_initialise() {
@@ -166,49 +356,8 @@ namespace {
             Log("Unable to retrieve IVRSystem, projection may be inaccurate\n");
         }
 
-        char systemName[256];
-        openvrSystem->GetStringTrackedDeviceProperty(
-            vr::k_unTrackedDeviceIndex_Hmd, vr::Prop_DriverVersion_String, systemName, sizeof(systemName));
-
-        std::vector<std::function<std::unique_ptr<IEyeTracker>()>> eyeTrackers;
-
-        // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
-
-        // 1) Omnicept uses a background service, it is not likely to be installed if the device is not used.
-        eyeTrackers.push_back(createOmniceptEyeTracker);
-
-        // 2) Virtual Desktop driver for SteamVR shall only be loaded if the streamer app is opened.
-        eyeTrackers.push_back(createVirtualDesktopEyeTracker);
-
-        // 3) PSVR2 Toolkit driver for SteamVR shall only be loaded if the toolkit is loaded.
-        eyeTrackers.push_back(createPsvr2ToolkitEyeTracker);
-
-        // 4) Varjo only loads if Varjo Base is running.
-        eyeTrackers.push_back(createVarjoEyeTracker);
-
-        if (systemName[0] == 'S' && systemName[1] == 'L' && systemName[2] == ',') {
-            // 5) Steam Link doesn't have any check, so use the driver version property to detect whether we should
-            // enable it.
-            eyeTrackers.push_back(createSteamLinkEyeTracker);
-        } else {
-            // 6) If Steam Link is undetected, we fall back to OSC for use with Bigscreen and Project Babble solutions.
-            eyeTrackers.push_back(createVRChatOSCEyeTracker);
-        }
-
-        for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
-            eyeTracker = eyeTrackers[i]();
-        }
-
-        if (eyeTracker) {
-            TraceLoggingWrite(
-                g_traceProvider, "EyeTracker", TLArg(getTrackerType(eyeTracker->getType()).c_str(), "Type"));
-            Log(fmt::format("Using eye tracking: {}\n", getTrackerType(eyeTracker->getType())));
-        } else {
-            Log("No supported eye tracking device found\n");
-        }
-
         // Initial reading of the settings.
-        updateMode();
+        updateMode(); // Also initializes the EyeTracker
 
         TraceLoggingWriteStop(local, "PVR_initialize");
 
@@ -234,9 +383,9 @@ namespace {
         TraceLoggingWriteStart(local, "PVR_createHmd");
 
         // Initialize eye tracking.
-        if (eyeTracker) {
-            eyeTracker->start(XR_NULL_HANDLE);
-        }
+        //if (eyeTracker) {
+        //    eyeTracker->start(XR_NULL_HANDLE);
+        //}
 
         // Any fake handle.
         *phmdh = (pvrHmdHandle)0x1;
@@ -508,3 +657,4 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
     return TRUE;
 }
+

@@ -45,6 +45,8 @@ namespace DFR_UI
             this.frDebug = new System.Windows.Forms.RadioButton();
             this.invertYAxis = new System.Windows.Forms.CheckBox();
             this.forceFixed = new System.Windows.Forms.CheckBox();
+            this.forceSource = new System.Windows.Forms.CheckBox();
+            this.sourceList = new System.Windows.Forms.ComboBox();
             this.frameTimeLabel = new System.Windows.Forms.Label();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel1.SuspendLayout();
@@ -67,18 +69,18 @@ namespace DFR_UI
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 56.18375F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 43.81625F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(533, 333);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(533, 401);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // log
             // 
             this.log.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.log.Location = new System.Drawing.Point(3, 212);
+            this.log.Location = new System.Drawing.Point(3, 250);
             this.log.Multiline = true;
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(527, 118);
+            this.log.Size = new System.Drawing.Size(527, 148);
             this.log.TabIndex = 2;
             // 
             // flowLayoutPanel1
@@ -123,12 +125,14 @@ namespace DFR_UI
             this.flowLayoutPanel2.Controls.Add(this.frDebug);
             this.flowLayoutPanel2.Controls.Add(this.invertYAxis);
             this.flowLayoutPanel2.Controls.Add(this.forceFixed);
+            this.flowLayoutPanel2.Controls.Add(this.forceSource);
+            this.flowLayoutPanel2.Controls.Add(this.sourceList);
             this.flowLayoutPanel2.Controls.Add(this.frameTimeLabel);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(2, 52);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(529, 155);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(529, 193);
             this.flowLayoutPanel2.TabIndex = 1;
             // 
             // labelMode
@@ -239,15 +243,40 @@ namespace DFR_UI
             this.forceFixed.UseVisualStyleBackColor = true;
             this.forceFixed.CheckedChanged += new System.EventHandler(this.forceFixed_CheckedChanged);
             // 
+            // forceSource
+            // 
+            this.forceSource.AutoSize = true;
+            this.forceSource.Enabled = false;
+            this.forceSource.Location = new System.Drawing.Point(10, 108);
+            this.forceSource.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
+            this.forceSource.Name = "forceSource";
+            this.forceSource.Size = new System.Drawing.Size(149, 17);
+            this.forceSource.TabIndex = 8;
+            this.forceSource.Text = "Force eye tracking source";
+            this.forceSource.UseVisualStyleBackColor = true;
+            this.forceSource.CheckedChanged += new System.EventHandler(this.forceSource_CheckedChanged);
+            // 
+            // sourceList
+            // 
+            this.sourceList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.sourceList.Enabled = false;
+            this.sourceList.FormattingEnabled = true;
+            this.sourceList.Location = new System.Drawing.Point(172, 106);
+            this.sourceList.Margin = new System.Windows.Forms.Padding(10, 6, 3, 3);
+            this.sourceList.Name = "sourceList";
+            this.sourceList.Size = new System.Drawing.Size(180, 21);
+            this.sourceList.TabIndex = 9;
+            this.sourceList.SelectionChangeCommitted += new System.EventHandler(this.sourceList_SelectionChangeCommitted);
+            // 
             // frameTimeLabel
             // 
             this.frameTimeLabel.AutoSize = true;
             this.flowLayoutPanel2.SetFlowBreak(this.frameTimeLabel, true);
-            this.frameTimeLabel.Location = new System.Drawing.Point(10, 108);
+            this.frameTimeLabel.Location = new System.Drawing.Point(365, 108);
             this.frameTimeLabel.Margin = new System.Windows.Forms.Padding(10, 8, 3, 0);
             this.frameTimeLabel.Name = "frameTimeLabel";
             this.frameTimeLabel.Size = new System.Drawing.Size(0, 13);
-            this.frameTimeLabel.TabIndex = 8;
+            this.frameTimeLabel.TabIndex = 11;
             // 
             // timer1
             // 
@@ -259,7 +288,7 @@ namespace DFR_UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 333);
+            this.ClientSize = new System.Drawing.Size(533, 401);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -295,6 +324,7 @@ namespace DFR_UI
         private System.Windows.Forms.CheckBox forceFixed;
         private System.Windows.Forms.Label frameTimeLabel;
         private System.Windows.Forms.CheckBox invertYAxis;
+        private System.Windows.Forms.CheckBox forceSource;
+        private System.Windows.Forms.ComboBox sourceList;
     }
 }
-
