@@ -170,16 +170,16 @@ namespace {
 
         eyeTracker.reset();
 
+        // VRChat OSC checks if Baballonia app is running using a mutex.
+        eyeTracker = !eyeTracker ? createVRChatOSCEyeTracker() : std::move(eyeTracker);
+
         // Varjo only loads if Varjo Base is running.
         eyeTracker = !eyeTracker ? createVarjoEyeTracker() : std::move(eyeTracker);
 
         if (openvrSystem) {
-            // OpenVR only loads if the Prop_SupportsXrEyeGazeInteraction_Bool is set to True.
+            // OpenVR only loads if Prop_SupportsXrEyeGazeInteraction_Bool is set to True.
             eyeTracker = !eyeTracker ? createOpenVrEyeTracker(openvrSystem) : std::move(eyeTracker);
         }
-
-        // TODO: Re-enable when there is a proper check.
-        //        eyeTracker = !eyeTracker ? createVRChatOSCEyeTracker() : std::move(eyeTracker);
 
         if (eyeTracker) {
             TraceLoggingWrite(g_traceProvider, "EyeTracker", TLArg(eyeTracker->getType().c_str(), "Type"));

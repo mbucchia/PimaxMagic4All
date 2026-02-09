@@ -54,4 +54,6 @@ You probably don't need to do this, but just in case Pimax publishes significant
 
 ## Special thanks
 
-Thanks to Tymon Lindell (Ridge) for adding support for the Bigscreen Beyond 2e and VanishedMC for beta testing on Bigscreen Beyond 2e.
+- Tymon Lindell (Ridge): Adding support for the Bigscreen Beyond 2e.
+- VanishedMC: Beta testing on Bigscreen Beyond 2e and with Baballonia.
+- Bevergames2018: Improving support for Baballonia.

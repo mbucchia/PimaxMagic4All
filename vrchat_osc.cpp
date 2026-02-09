@@ -1,6 +1,8 @@
 // MIT License
 //
+// Copyright(c) 2022-2026 Matthieu Bucchianeri
 // Copyright(c) 2025 Tymon Lindell (Ridge)
+// Copyright(c) 2026 Bevergames2018
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this softwareand associated documentation files(the "Software"), to deal
@@ -39,18 +41,27 @@ namespace {
     struct VRChatOSCEyeTracker : IEyeTracker, osc::OscPacketListener {
         // VRChat's packets run over port 9000. This can be set to other ports if the software supports, we're using
         // port 9020 here.
-        VRChatOSCEyeTracker() : m_socket(IpEndpointName(IpEndpointName::ANY_ADDRESS, 9020), this) {
+        VRChatOSCEyeTracker() {
+            wil::unique_handle mutex;
+            *mutex.put() = OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\baballonia-unique-id");
+            if (!mutex) {
+                TraceLoggingWrite(g_traceProvider, "VRChatOSCEyeTracker_NoBaballoniaService");
+                throw EyeTrackerNotSupportedException();
+            }
+
+            m_socket =
+                std::make_unique<UdpListeningReceiveSocket>(IpEndpointName(IpEndpointName::ANY_ADDRESS, 9020), this);
         }
 
         ~VRChatOSCEyeTracker() override {
             if (m_started) {
-                m_socket.AsynchronousBreak();
+                m_socket->AsynchronousBreak();
                 m_listeningThread.join();
             }
         }
 
         void start() override {
-            m_listeningThread = std::thread([&]() { m_socket.Run(); });
+            m_listeningThread = std::thread([&]() { m_socket->Run(); });
             m_started = true;
         }
 
@@ -120,7 +131,7 @@ namespace {
 
         bool m_started{false};
         std::thread m_listeningThread;
-        UdpListeningReceiveSocket m_socket;
+        std::unique_ptr<UdpListeningReceiveSocket> m_socket;
         mutable std::mutex m_mutex;
         vr::HmdVector3_t m_latestGaze{};
         std::chrono::high_resolution_clock::time_point m_lastReceivedTime{};
@@ -133,7 +144,7 @@ namespace trackers {
     std::unique_ptr<IEyeTracker> createVRChatOSCEyeTracker() {
         try {
             return std::make_unique<VRChatOSCEyeTracker>();
-        } catch (...) {
+        } catch (EyeTrackerNotSupportedException&) {
             return {};
         }
     }
