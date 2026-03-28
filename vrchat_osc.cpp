@@ -34,7 +34,6 @@
 namespace {
 
     using namespace logging;
-    using namespace util;
     using namespace trackers;
 
     struct VRChatOSCEyeTracker : IEyeTracker, osc::OscPacketListener {
@@ -58,7 +57,7 @@ namespace {
         void stop() override {
         }
 
-        bool getGaze(vr::HmdVector3_t& unitVector) override {
+        bool getGaze(vr::HmdVector2_t& gaze) override {
             std::unique_lock lock(m_mutex);
 
             const auto now = std::chrono::high_resolution_clock::now();
@@ -66,7 +65,8 @@ namespace {
                 return false;
             }
 
-            unitVector = m_latestGaze;
+            gaze.v[0] = m_latestGaze.v[0];
+            gaze.v[1] = m_latestGaze.v[1];
             return true;
         }
 

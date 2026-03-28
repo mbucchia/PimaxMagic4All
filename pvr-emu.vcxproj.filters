@@ -37,6 +37,9 @@
     <ClCompile Include="vrchat_osc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="openvr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

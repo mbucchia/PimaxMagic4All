@@ -90,33 +90,31 @@ namespace {
         void stop() override {
         }
 
-        bool getGaze(vr::HmdVector3_t& unitVector) override {
-            const auto gaze = varjo_GetGaze(m_varjoSession);
+        bool getGaze(vr::HmdVector2_t& gaze) override {
+            const auto vgaze = varjo_GetGaze(m_varjoSession);
             TraceLoggingWrite(g_traceProvider,
                               "VarjoEyeTracker_GetGaze",
-                              TLArg((int)gaze.leftStatus, "LeftStatus"),
-                              TLArg((int)gaze.rightStatus, "RightStatus"));
+                              TLArg((int)vgaze.leftStatus, "LeftStatus"),
+                              TLArg((int)vgaze.rightStatus, "RightStatus"));
 
-            if (gaze.leftStatus == varjo_GazeEyeStatus_Invalid || gaze.rightStatus == varjo_GazeEyeStatus_Invalid) {
+            if (vgaze.leftStatus == varjo_GazeEyeStatus_Invalid || vgaze.rightStatus == varjo_GazeEyeStatus_Invalid) {
                 return false;
             }
             TraceLoggingWrite(g_traceProvider,
                               "VarjoEyeTracker_GetGaze",
-                              TLArg(util::ToString(vr::HmdVector3_t{(float)gaze.leftEye.forward[0],
-                                                                    (float)gaze.leftEye.forward[1],
-                                                                    (float)gaze.leftEye.forward[2]})
+                              TLArg(ToString(vr::HmdVector3_t{(float)vgaze.leftEye.forward[0],
+                                                              (float)vgaze.leftEye.forward[1],
+                                                              (float)vgaze.leftEye.forward[2]})
                                         .c_str(),
                                     "LeftForward"),
-                              TLArg(util::ToString(vr::HmdVector3_t{(float)gaze.rightEye.forward[0],
-                                                                    (float)gaze.rightEye.forward[1],
-                                                                    (float)gaze.rightEye.forward[2]})
+                              TLArg(ToString(vr::HmdVector3_t{(float)vgaze.rightEye.forward[0],
+                                                              (float)vgaze.rightEye.forward[1],
+                                                              (float)vgaze.rightEye.forward[2]})
                                         .c_str(),
                                     "RightForward"));
 
-            unitVector.v[0] = (float)(gaze.leftEye.forward[0] + gaze.rightEye.forward[0]) / 2.f;
-            unitVector.v[1] = (float)(gaze.leftEye.forward[1] + gaze.rightEye.forward[1]) / 2.f;
-            unitVector.v[2] = (float)(gaze.leftEye.forward[2] + gaze.rightEye.forward[2]) / 2.f;
-
+            gaze.v[0] = (float)(vgaze.leftEye.forward[0] + vgaze.rightEye.forward[0]) / 2.f;
+            gaze.v[1] = (float)(vgaze.leftEye.forward[1] + vgaze.rightEye.forward[1]) / 2.f;
             return true;
         }
 

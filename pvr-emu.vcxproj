@@ -141,6 +141,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="openvr.cpp" />
     <ClCompile Include="varjo.cpp" />
     <ClCompile Include="vrchat_osc.cpp" />
     <ClCompile Include="pch.cpp">

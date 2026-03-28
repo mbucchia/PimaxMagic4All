@@ -35,10 +35,11 @@ namespace trackers {
 
         virtual void start() = 0;
         virtual void stop() = 0;
-        virtual bool getGaze(vr::HmdVector3_t& unitVector) = 0;
+        virtual bool getGaze(vr::HmdVector2_t& gaze) = 0;
         virtual std::string getType() const = 0;
     };
 
+    std::unique_ptr<IEyeTracker> createOpenVrEyeTracker(vr::IVRSystem* system);
     std::unique_ptr<IEyeTracker> createVarjoEyeTracker();
     std::unique_ptr<IEyeTracker> createVRChatOSCEyeTracker();
 

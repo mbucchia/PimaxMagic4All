@@ -158,7 +158,7 @@ namespace {
                 (decltype(pfnVR_GetGenericInterface))GetProcAddress(openvr, "VR_GetGenericInterface");
             if (pfnVR_GetGenericInterface) {
                 vr::EVRInitError error;
-                openvrSystem = (vr::IVRSystem*)pfnVR_GetGenericInterface("IVRSystem_022", &error);
+                openvrSystem = (vr::IVRSystem*)pfnVR_GetGenericInterface(vr::IVRSystem_Version, &error);
             }
         }
 
@@ -166,19 +166,20 @@ namespace {
             Log("Unable to retrieve IVRSystem, projection may be inaccurate\n");
         }
 
-        std::vector<std::function<std::unique_ptr<IEyeTracker>()>> eyeTrackers;
-
         // Initialize the eye tracker. We try in order from "strongest check" to "weakest check".
 
+        eyeTracker.reset();
+
         // Varjo only loads if Varjo Base is running.
-        eyeTrackers.push_back(createVarjoEyeTracker);
+        eyeTracker = !eyeTracker ? createVarjoEyeTracker() : std::move(eyeTracker);
+
+        if (openvrSystem) {
+            // OpenVR only loads if the Prop_SupportsXrEyeGazeInteraction_Bool is set to True.
+            eyeTracker = !eyeTracker ? createOpenVrEyeTracker(openvrSystem) : std::move(eyeTracker);
+        }
 
         // TODO: Re-enable when there is a proper check.
-        //eyeTrackers.push_back(createVRChatOSCEyeTracker);
-
-        for (uint32_t i = 0; !eyeTracker && i < std::size(eyeTrackers); i++) {
-            eyeTracker = eyeTrackers[i]();
-        }
+        //        eyeTracker = !eyeTracker ? createVRChatOSCEyeTracker() : std::move(eyeTracker);
 
         if (eyeTracker) {
             TraceLoggingWrite(g_traceProvider, "EyeTracker", TLArg(eyeTracker->getType().c_str(), "Type"));
@@ -374,7 +375,7 @@ namespace {
             }
 
             // Query the most recent eye tracking data.
-            vr::HmdVector3_t gaze{};
+            vr::HmdVector2_t gaze{};
             bool isValid = false;
             if (!ignoreEyeTracking.load()) {
                 isValid = eyeTracker->getGaze(gaze);
