@@ -49,10 +49,6 @@ namespace DFR_UI
 
             var SystemFiles = new string[] {
                 "libpvrclient64.dll",
-                "jsoncpp.dll",
-#if !DEBUG
-                "libzmq-mt-4_3_3.dll",
-#endif
                 "VarjoLib.dll" };
 
             while (true)

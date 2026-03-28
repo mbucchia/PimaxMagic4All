@@ -1,6 +1,6 @@
 // MIT License
 //
-// Copyright(c) 2023 Matthieu Bucchianeri
+// Copyright(c) 2023-2026 Matthieu Bucchianeri
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this softwareand associated documentation files(the "Software"), to deal
@@ -9,7 +9,7 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions :
 //
-// The above copyright noticeand this permission notice shall be included in all
+// The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -29,12 +29,14 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <mutex>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 // MSVC intrinsics.
 #include <intrin.h>
@@ -49,21 +51,12 @@
 #include <wil/registry.h>
 #include <WinSock2.h>
 
-// We don't use OpenXR, however we import code as-is from the OpenXR-Eye-Trackers project, therefore we need definitions
-// for OpenXR basic types (such as XrPosef or XrVector3f).
-#define XR_NO_PROTOTYPES
-#include <openxr/openxr.h>
-#include <XrError.h>
-#include <XrMath.h>
-#include <XrStereoView.h>
-#include <XrToString.h>
-
-// We also need this definition to keep the compiler happy (unused code).
-class OpenXrApi {};
-
 // FMT formatter.
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
+
+// Detours.
+#include <detours.h>
 
 // Pimax SDK
 #include <PVR.h>
@@ -74,9 +67,3 @@ class OpenXrApi {};
 
 // Varjo SDK
 #include <Varjo.h>
-
-// HP Omnicept SDK
-#include <omnicept/Glia.h>
-
-// Detours
-#include <detours.h>

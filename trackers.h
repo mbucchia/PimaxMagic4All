@@ -20,4 +20,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "pch.h"
+#pragma once
+
+namespace trackers {
+
+    struct EyeTrackerNotSupportedException : public std::exception {
+        const char* what() const throw() {
+            return "Eye tracker is not supported";
+        }
+    };
+
+    struct IEyeTracker {
+        virtual ~IEyeTracker() = default;
+
+        virtual void start() = 0;
+        virtual void stop() = 0;
+        virtual bool getGaze(vr::HmdVector3_t& unitVector) = 0;
+        virtual std::string getType() const = 0;
+    };
+
+    std::unique_ptr<IEyeTracker> createVarjoEyeTracker();
+    std::unique_ptr<IEyeTracker> createVRChatOSCEyeTracker();
+
+} // namespace trackers

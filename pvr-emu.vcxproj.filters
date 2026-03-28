@@ -14,16 +14,13 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\OpenXR-Eye-Trackers\openxr-api-layer\trackers.h">
+    <ClInclude Include="trackers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\OpenXR-Eye-Trackers\openxr-api-layer\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -34,22 +31,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\omnicept.cpp">
+    <ClCompile Include="varjo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\varjo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\virtual_desktop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\steam_link.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\psvr2_toolkit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\OpenXR-Eye-Trackers\openxr-api-layer\vrchat_osc.cpp">
+    <ClCompile Include="vrchat_osc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
