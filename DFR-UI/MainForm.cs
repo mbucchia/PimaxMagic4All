@@ -24,7 +24,8 @@ namespace DFR_UI
         CVRSystem VrSystem;
         CVRApplications VrApplications;
         CVRCompositor VrCompositor;
-        string PathToMagicAttach;
+        string[] DllsToInject64;
+        string[] DllsToInject32;
         uint AttachedApplication = 0;
         Microsoft.Win32.RegistryKey SettingsKey;
 
@@ -35,70 +36,22 @@ namespace DFR_UI
             var assembly = Assembly.GetAssembly(GetType());
             var installPath = Path.GetDirectoryName(assembly.Location);
 
-            PathToMagicAttach = Path.Combine(installPath, "MagicAttach_x64.exe");
+            // Loaded into the game in this order. LibMagic loads "libPVRClient{64,32}.dll" by name, which resolves to our
+            // copy because it is already loaded in the process.
+            DllsToInject64 = new string[] {
+                Path.Combine(installPath, "libPVRClient64.dll"),
+                Path.Combine(installPath, "LibMagicD3D1164.dll") };
+            DllsToInject32 = new string[] {
+                Path.Combine(installPath, "libPVRClient32.dll"),
+                Path.Combine(installPath, "LibMagicD3D1132.dll") };
 
-            var PathsToCheck = new string[] { PathToMagicAttach, Path.Combine(installPath, "LibMagicD3D1164.dll") };
-            foreach (var path in PathsToCheck)
+            foreach (var path in DllsToInject64)
             {
                 if (!File.Exists(path))
                 {
                     MessageBox.Show(this, "Cannot find " + path + "\nPlease follow carefully the instructions for setting up this utility!", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(1);
                 }
-            }
-
-            var SystemFiles = new string[] {
-                "libpvrclient64.dll",
-                "VarjoLib.dll" };
-
-            while (true)
-            {
-                var missingSystemFiles = "";
-                foreach (var file in SystemFiles)
-                {
-                    var systemPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), file);
-
-                    if (!File.Exists(systemPath) || !FileEquals(systemPath, Path.Combine(installPath, file)))
-                    {
-                        missingSystemFiles += systemPath + "\n";
-                    }
-                }
-
-                if (missingSystemFiles.Length == 0)
-                {
-                    break;
-                }
-
-                var result = MessageBox.Show(this, "The following system files must be installed or updated in order to proceed.\n" + missingSystemFiles + "\n\nYou must close SteamVR before proceeding. Do you wish to continue?", "Installation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result != DialogResult.Yes)
-                {
-                    Environment.Exit(1);
-                }
-                var processInfo = new ProcessStartInfo();
-                processInfo.Verb = "RunAs";
-                processInfo.FileName = "cmd.exe";
-                processInfo.Arguments = "/s /c \"\"" + Path.Combine(installPath, "install_system_files.bat") + "\" \"" + installPath + "\"\"";
-                processInfo.UseShellExecute = true;
-                try
-                {
-                    var process = Process.Start(processInfo);
-                    process.WaitForExit();
-                    if (process.ExitCode != 0)
-                    {
-                        MessageBox.Show("Installation failed. Please make sure SteamVR is closed before trying again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                        Environment.Exit(1);
-                    }
-                }
-                catch (Win32Exception exc)
-                {
-                    MessageBox.Show("Failed to run the installation script: " + exc, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                    Environment.Exit(1);
-                }
-
-                // Force bring up the window.
-                this.WindowState = FormWindowState.Minimized;
-                this.Show();
-                this.WindowState = FormWindowState.Normal;
             }
 
             SettingsKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\FR-Utility");
@@ -168,7 +121,7 @@ namespace DFR_UI
                         appLabel.Text = "Current application: " + appName + " (" + pid + ")";
                         SetEnabled(true);
 
-                        MagicAttach(pid);
+                        Attach(pid);
                         AttachedApplication = pid;
                     }
                 }
@@ -205,21 +158,26 @@ namespace DFR_UI
             }
         }
 
-        private void MagicAttach(uint pid)
+        private void Attach(uint pid)
         {
-            var processInfo = new ProcessStartInfo();
-            processInfo.Verb = "Run";
-            processInfo.UseShellExecute = false;
-            processInfo.CreateNoWindow = false;
-            processInfo.FileName = PathToMagicAttach;
-            processInfo.Arguments = "/pid " + pid;
             try
             {
-                Process.Start(processInfo);
+                var dlls = Injector.Is32BitProcess(pid) ? DllsToInject32 : DllsToInject64;
+                foreach (var dll in dlls)
+                {
+                    if (!File.Exists(dll))
+                    {
+                        throw new FileNotFoundException("Cannot find " + dll);
+                    }
+                }
+                foreach (var dll in dlls)
+                {
+                    Injector.Inject(pid, dll);
+                }
             }
-            catch (Win32Exception)
+            catch (Exception exc)
             {
-                MessageBox.Show("Failed to attach to process " + pid, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Failed to attach to process " + pid + ":\n" + exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -250,7 +208,7 @@ namespace DFR_UI
 
         private void reattach_Click(object sender, EventArgs e)
         {
-            MagicAttach(AttachedApplication);
+            Attach(AttachedApplication);
         }
 
         private void invertYAxis_CheckedChanged(object sender, EventArgs e)
@@ -261,35 +219,6 @@ namespace DFR_UI
         private void forceFixed_CheckedChanged(object sender, EventArgs e)
         {
             SettingsKey.SetValue("ignore_eye_tracking", forceFixed.Checked ? 1 : 0);
-        }
-
-        // https://stackoverflow.com/questions/968935/compare-binary-files-in-c-sharp
-        static bool FileEquals(string fileName1, string fileName2)
-        {
-            using (var file1 = new FileStream(fileName1, FileMode.Open, FileAccess.Read))
-            using (var file2 = new FileStream(fileName2, FileMode.Open, FileAccess.Read))
-                return FileStreamEquals(file1, file2);
-        }
-
-        static bool FileStreamEquals(Stream stream1, Stream stream2)
-        {
-            const int bufferSize = 2048;
-            byte[] buffer1 = new byte[bufferSize];
-            byte[] buffer2 = new byte[bufferSize];
-            while (true)
-            {
-                int count1 = stream1.Read(buffer1, 0, bufferSize);
-                int count2 = stream2.Read(buffer2, 0, bufferSize);
-
-                if (count1 != count2)
-                    return false;
-
-                if (count1 == 0)
-                    return true;
-
-                if (!buffer1.Take(count1).SequenceEqual(buffer2.Take(count2)))
-                    return false;
-            }
         }
     }
 }

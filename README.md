@@ -2,7 +2,7 @@
 
 ## What does it do?
 
-This utility lets you use the Pimax Foveated Rendering feature with headsets other than Pimax. It re-implements a few parts of the Pimax PVR API (publicly available [from Pimax's website](https://developer.pimax.com/document/sdk/native/native-pc-xr-sdk.html)) to allow the Pimax Foveated Rendering code to run without the rest of the Pimax software. It uses the `MagicAttach` tool available from the Pimax Play software to initiate Foveated Rendering into the currently running SteamVR OpenVR application.
+This utility lets you use the Pimax Foveated Rendering feature with headsets other than Pimax. It re-implements a few parts of the Pimax PVR API (publicly available [from Pimax's website](https://developer.pimax.com/document/sdk/native/native-pc-xr-sdk.html)) to allow the Pimax Foveated Rendering code to run without the rest of the Pimax software. It loads the Pimax Foveated Rendering library (`LibMagicD3D1164.dll`, available from the Pimax Play software) into the currently running SteamVR OpenVR application.
 
 Pimax is a Virtual Reality headset vendor who most recently released the [Pimax Crystal](https://pimax.com/crystal/), a high-end headset with support for eye tracking and therefore Dynamic Foveated Rendering (DFR) through their software suite.
 
@@ -47,8 +47,8 @@ You probably don't need to do this, but just in case Pimax publishes significant
 1) Install [Pimax Play](https://pimax.com/pimax-pc) from the Pimax website. This is temporary, you can uninstall it after we grab the necessary files.
 **At time of writing, Pimax Play 1.16 was successfully tested.**
 
-2) Go to `%ProgramFiles%\Pimax\Runtime` and copy the `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` files into the folder where you installed the Foveated Rendering Utility.
-**The `LibMagicD3D1164.dll` and `MagicAttach_x64.exe` shall be next to the `DFR-UI.exe` file.**
+2) Go to `%ProgramFiles%\Pimax\Runtime` and copy the `LibMagicD3D1164.dll` and `LibMagicD3D1132.dll` files into the folder where you installed the Foveated Rendering Utility.
+**The `LibMagicD3D11*.dll` files shall be next to the `DFR-UI.exe` file.**
 
 3) You can now uninstall Pimax Play.
 

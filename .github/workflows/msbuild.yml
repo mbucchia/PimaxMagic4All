@@ -49,7 +49,8 @@ jobs:
         & $DisableOutOfProcBuild
         Pop-Location
         
-        # Finally, we may build the project.
+        # Finally, we may build the project. The x86 build copies its binaries into the x64 output folder.
+        devenv.com ${{env.SOLUTION_FILE_PATH}} /Build "${{env.BUILD_CONFIGURATION}}|x86"
         devenv.com ${{env.SOLUTION_FILE_PATH}} /Build "${{env.BUILD_CONFIGURATION}}|x64"
 
         copy PvrEmu.wprp bin\x64\Release\
@@ -64,11 +65,12 @@ jobs:
           bin/x64/Release/DFR-UI.exe
           bin/x64/Release/DFR-UI.exe.config
           bin/x64/Release/openvr_api.dll
-          bin/x64/Release/install_system_files.bat
           bin/x64/Release/libpvrclient64.dll
+          bin/x64/Release/libpvrclient32.dll
           bin/x64/Release/VarjoLib.dll
+          bin/x64/Release/VarjoLib32.dll
           bin/x64/Release/PvrEmu.wprp
           bin/x64/Release/README.md
           bin/x64/Release/THIRD_PARTY
           bin/x64/Release/LibMagicD3D1164.dll
-          bin/x64/Release/MagicAttach_x64.exe
+          bin/x64/Release/LibMagicD3D1132.dll

@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -24,7 +32,20 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
@@ -39,7 +60,13 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -49,11 +76,23 @@
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>libPVRClient64</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>libPVRClient32</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <TargetName>libPVRClient64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <TargetName>libPVRClient32</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -72,13 +111,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>oscpack.lib;winmm.lib;varjolib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>VarjoLib.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib.dll $(OutDir)
 copy $(SolutionDir)\external\LibMagic\LibMagicD3D1164.dll $(OutDir)
-copy $(SolutionDir)\external\LibMagic\MagicAttach_x64.exe $(OutDir)
-copy $(SolutionDir)\install_system_files.bat $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -86,6 +124,48 @@ if not defined PFX_NAME set PFX_NAME=selfsigncert
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
 :skip_signing
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy dependencies...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>VarjoLib32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib32.dll $(OutDir)
+copy $(SolutionDir)\external\LibMagic\LibMagicD3D1132.dll $(OutDir)
+
+REM Sign the DLLs.
+if not defined PFX_PASSWORD goto skip_signing
+if not defined PFX_NAME set PFX_NAME=selfsigncert
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib32.dll
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
+:skip_signing
+
+REM Also place the 32-bit binaries next to DFR-UI.exe (shipping folder).
+if not exist $(SolutionDir)\bin\x64\$(Configuration)\ mkdir $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(TargetPath) $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(OutDir)\VarjoLib32.dll $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -113,13 +193,12 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>oscpack.lib;winmm.lib;varjolib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>VarjoLib.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib.dll $(OutDir)
 copy $(SolutionDir)\external\LibMagic\LibMagicD3D1164.dll $(OutDir)
-copy $(SolutionDir)\external\LibMagic\MagicAttach_x64.exe $(OutDir)
-copy $(SolutionDir)\install_system_files.bat $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -127,6 +206,52 @@ if not defined PFX_NAME set PFX_NAME=selfsigncert
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib.dll
 $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
 :skip_signing
+</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy dependencies...</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>VarjoLib32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib32.dll $(OutDir)
+copy $(SolutionDir)\external\LibMagic\LibMagicD3D1132.dll $(OutDir)
+
+REM Sign the DLLs.
+if not defined PFX_PASSWORD goto skip_signing
+if not defined PFX_NAME set PFX_NAME=selfsigncert
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(OutDir)\VarjoLib32.dll
+$(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbucchia/PimaxMagic4All" /f $(SolutionDir)\signing\%PFX_NAME%.pfx /p "%PFX_PASSWORD%" /v $(TargetPath)
+:skip_signing
+
+REM Also place the 32-bit binaries next to DFR-UI.exe (shipping folder).
+if not exist $(SolutionDir)\bin\x64\$(Configuration)\ mkdir $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(TargetPath) $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(OutDir)\VarjoLib32.dll $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -147,7 +272,9 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     <ClCompile Include="vrchat_osc.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
