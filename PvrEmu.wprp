@@ -11,7 +11,7 @@
       <Buffers Value="40"/>
     </EventCollector>
 
-    <EventProvider Name="CBF3ADCD-42B9-4C38-830B-91980AF201F6" Id="PvrEmu" />
+    <EventProvider Name="CBF3ADCD-42B9-4C38-830B-91980AF201F6" Id="PimaxMagic4All" />
 
     <!-- Watson logging -->
     <EventProvider Name="1377561D-9312-452C-AD13-C4A1C9C906E0" Id="Microsoft.Windows.FaultReporting" />
@@ -21,11 +21,11 @@
     <!-- Debug layer traces (only works when debug layer is enabled) -->
     <EventProvider Name="F1FF64EF-FAF3-5699-8E51-F6EC2FBD97D1" Id="Microsoft-Windows-DXGIDebug" />
 
-    <Profile Id="PvrEmu.Verbose.File" LoggingMode="File" Name="PvrEmu" DetailLevel="Verbose" Description="Collect traces for PvrEmu" Default="true">
+    <Profile Id="PimaxMagic4All.Verbose.File" LoggingMode="File" Name="PimaxMagic4All" DetailLevel="Verbose" Description="Collect traces for PimaxMagic4All" Default="true">
       <Collectors>
         <EventCollectorId Value="EventCollector">
           <EventProviders>
-            <EventProviderId Value="PvrEmu"/>
+            <EventProviderId Value="PimaxMagic4All"/>
             <EventProviderId Value="Microsoft.Windows.FaultReporting" />
             <EventProviderId Value="Microsoft.Windows.WindowsErrorReporting" />
             <EventProviderId Value="Microsoft.Windows.HangReporting" />

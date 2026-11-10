@@ -68,9 +68,9 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "pvr-emu.dll"
+            VALUE "InternalName", "libPVRClient64.dll"
             VALUE "LegalCopyright", "Copyright (c) 2023-2026 Matthieu Bucchianeri"
-            VALUE "OriginalFilename", "pvr-emu.dll"
+            VALUE "OriginalFilename", "libPVRClient64.dll"
             VALUE "ProductName", "PimaxMagic4All"
             VALUE "ProductVersion", "1.0.0.0"
         END

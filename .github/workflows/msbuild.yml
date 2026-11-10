@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 env:
-  SOLUTION_FILE_PATH: pvr-emu.sln
+  SOLUTION_FILE_PATH: PimaxMagic4All.sln
   BUILD_CONFIGURATION: Release
 
 jobs:

@@ -181,7 +181,7 @@ namespace DFR_UI
                 var oldTextLength = log.TextLength;
                 try
                 {
-                    var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\PvrEmu\\PvrEmu.log";
+                    var path = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\PimaxMagic4All\\PvrEmu.log";
                     var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
                     var sr = new StreamReader(fs, Encoding.Default);
                     log.Text = sr.ReadToEnd();

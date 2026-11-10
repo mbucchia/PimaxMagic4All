@@ -35,7 +35,7 @@ using namespace trackers;
 namespace logging {
     // {cbf3adcd-42b9-4c38-830b-91980af201f6}
     TRACELOGGING_DEFINE_PROVIDER(g_traceProvider,
-                                 "PvrEmu",
+                                 "PimaxMagic4All",
                                  (0xcbf3adcd, 0x42b9, 0x4c38, 0x83, 0x0b, 0x91, 0x98, 0x0a, 0xf2, 0x01, 0xf6));
 
     TraceLoggingActivity<g_traceProvider> g_traceActivity;
@@ -465,7 +465,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         TraceLoggingRegister(g_traceProvider);
 
         {
-            const auto localAppData = std::filesystem::path(getenv("LOCALAPPDATA")) / "PvrEmu";
+            const auto localAppData = std::filesystem::path(getenv("LOCALAPPDATA")) / "PimaxMagic4All";
             CreateDirectoryA(localAppData.string().c_str(), nullptr);
 
             // Start logging to file.
