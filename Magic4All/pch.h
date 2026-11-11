@@ -62,6 +62,16 @@
 #include <PVR.h>
 #include <PVR_Interface.h>
 
+// OpenXR (API layer).
+#include <d3d11.h>
+#define XR_NO_PROTOTYPES
+#define XR_USE_PLATFORM_WIN32
+#define XR_USE_GRAPHICS_API_D3D11
+#include <openxr/openxr.h>
+#include <openxr/openxr_platform.h>
+#include <openxr/openxr_reflection.h>
+#include "openxr_loader_interfaces.h"
+
 // OpenVR
 #include <openvr.h>
 

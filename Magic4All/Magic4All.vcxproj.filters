@@ -20,6 +20,9 @@
     <ClInclude Include="log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="openxr_loader_interfaces.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,9 +46,15 @@
     <ClCompile Include="openvr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="openxr_layer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Library.def" />
+    <None Include="Magic4All.json" />
+    <None Include="Magic4All-32.json" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />

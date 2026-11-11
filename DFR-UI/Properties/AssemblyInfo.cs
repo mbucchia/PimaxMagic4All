@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Foveated Rendering Utility")]
+[assembly: AssemblyTitle("PimaxMagic4All")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Foveated Rendering Utility")]
+[assembly: AssemblyProduct("PimaxMagic4All")]
 [assembly: AssemblyCopyright("Copyright ©  2023-2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

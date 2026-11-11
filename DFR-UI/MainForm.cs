@@ -54,6 +54,15 @@ namespace DFR_UI
                 }
             }
 
+            if (OpenXRLayer.NeedsRegistration(installPath))
+            {
+                var result = MessageBox.Show(this, "To use Foveated Rendering with OpenXR applications, the OpenXR API layer must be registered.\n\nDo you want to register it now?", "OpenXR support", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes && !OpenXRLayer.RegisterElevated(installPath))
+                {
+                    MessageBox.Show(this, "The OpenXR layer was not registered.", "OpenXR support", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+
             SettingsKey = Microsoft.Win32.Registry.CurrentUser.CreateSubKey("SOFTWARE\\FR-Utility");
             switch ((int)SettingsKey.GetValue("mode", 0))
             {

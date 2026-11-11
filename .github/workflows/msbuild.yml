@@ -67,6 +67,8 @@ jobs:
           bin/x64/Release/openvr_api.dll
           bin/x64/Release/libpvrclient64.dll
           bin/x64/Release/libpvrclient32.dll
+          bin/x64/Release/Magic4All.json
+          bin/x64/Release/Magic4All-32.json
           bin/x64/Release/VarjoLib.dll
           bin/x64/Release/VarjoLib32.dll
           bin/x64/Release/PvrEmu.wprp

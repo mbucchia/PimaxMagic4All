@@ -266,7 +266,7 @@ namespace DFR_UI
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "MainForm";
-            this.Text = "Foveated Rendering Utility";
+            this.Text = "PimaxMagic4All - Foveated Rendering Utility";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();

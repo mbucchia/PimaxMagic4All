@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\OpenXR.1.1.47\build\native\openxr.props" Condition="Exists('..\packages\OpenXR.1.1.47\build\native\openxr.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -110,6 +111,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>Library.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
       <DelayLoadDLLs>VarjoLib.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -117,6 +119,7 @@
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib.dll $(OutDir)
 copy $(SolutionDir)\external\LibMagic\LibMagicD3D1164.dll $(OutDir)
+copy $(ProjectDir)\Magic4All.json $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -146,6 +149,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>Library.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
       <DelayLoadDLLs>VarjoLib32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -153,6 +157,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib32.dll $(OutDir)
 copy $(SolutionDir)\external\LibMagic\LibMagicD3D1132.dll $(OutDir)
+copy $(ProjectDir)\Magic4All-32.json $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -166,6 +171,7 @@ if not exist $(SolutionDir)\bin\x64\$(Configuration)\ mkdir $(SolutionDir)\bin\x
 copy $(TargetPath) $(SolutionDir)\bin\x64\$(Configuration)\
 copy $(OutDir)\VarjoLib32.dll $(SolutionDir)\bin\x64\$(Configuration)\
 copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -192,6 +198,7 @@ copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>Library.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
       <DelayLoadDLLs>VarjoLib.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -199,6 +206,7 @@ copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib.dll $(OutDir)
 copy $(SolutionDir)\external\LibMagic\LibMagicD3D1164.dll $(OutDir)
+copy $(ProjectDir)\Magic4All.json $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -232,6 +240,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <ModuleDefinitionFile>Library.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)\bin\$(Platform)\$(Configuration);$(SolutionDir)\external\Varjo\lib</AdditionalLibraryDirectories>
       <DelayLoadDLLs>VarjoLib32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <AdditionalDependencies>delayimp.lib;oscpack.lib;winmm.lib;varjolib32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -239,6 +248,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
     <PostBuildEvent>
       <Command>copy $(SolutionDir)\external\Varjo\bin\VarjoLib32.dll $(OutDir)
 copy $(SolutionDir)\external\LibMagic\LibMagicD3D1132.dll $(OutDir)
+copy $(ProjectDir)\Magic4All-32.json $(OutDir)
 
 REM Sign the DLLs.
 if not defined PFX_PASSWORD goto skip_signing
@@ -252,6 +262,7 @@ if not exist $(SolutionDir)\bin\x64\$(Configuration)\ mkdir $(SolutionDir)\bin\x
 copy $(TargetPath) $(SolutionDir)\bin\x64\$(Configuration)\
 copy $(OutDir)\VarjoLib32.dll $(SolutionDir)\bin\x64\$(Configuration)\
 copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
+copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -262,12 +273,14 @@ copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
     <ClInclude Include="resource.h" />
     <ClInclude Include="trackers.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="openxr_loader_interfaces.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="openvr.cpp" />
+    <ClCompile Include="openxr_layer.cpp" />
     <ClCompile Include="varjo.cpp" />
     <ClCompile Include="vrchat_osc.cpp" />
     <ClCompile Include="pch.cpp">
@@ -279,6 +292,9 @@ copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Library.def" />
+    <None Include="Magic4All.json" />
+    <None Include="Magic4All-32.json" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -287,6 +303,7 @@ copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets')" />
     <Import Project="$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="..\packages\OpenXR.1.1.47\build\native\openxr.targets" Condition="Exists('..\packages\OpenXR.1.1.47\build\native\openxr.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -294,5 +311,7 @@ copy $(OutDir)\LibMagicD3D1132.dll $(SolutionDir)\bin\x64\$(Configuration)\
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('..\packages\OpenXR.1.1.47\build\native\openxr.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenXR.1.1.47\build\native\openxr.props'))" />
+    <Error Condition="!Exists('..\packages\OpenXR.1.1.47\build\native\openxr.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenXR.1.1.47\build\native\openxr.targets'))" />
   </Target>
 </Project>

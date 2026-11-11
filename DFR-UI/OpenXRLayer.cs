@@ -1,0 +1,122 @@
+// MIT License
+//
+// Copyright(c) 2026 Matthieu Bucchianeri
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this softwareand associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+
+namespace DFR_UI
+{
+    // Registers the OpenXR API layer manifests as implicit layers for the OpenXR loader:
+    // HKLM\SOFTWARE\Khronos\OpenXR\1\ApiLayers\Implicit, one DWORD value per manifest (value name = full path to the
+    // JSON file, data 0 = enabled). The 32-bit manifest goes in the 32-bit registry view (WOW6432Node).
+    static class OpenXRLayer
+    {
+        const string ImplicitLayersKey = @"SOFTWARE\Khronos\OpenXR\1\ApiLayers\Implicit";
+
+        struct Manifest
+        {
+            public string Path;
+            public RegistryView View;
+        }
+
+        static IEnumerable<Manifest> GetManifests(string installPath)
+        {
+            yield return new Manifest { Path = Path.Combine(installPath, "Magic4All.json"), View = RegistryView.Registry64 };
+            yield return new Manifest { Path = Path.Combine(installPath, "Magic4All-32.json"), View = RegistryView.Registry32 };
+        }
+
+        public static bool NeedsRegistration(string installPath)
+        {
+            foreach (var manifest in GetManifests(installPath))
+            {
+                if (!File.Exists(manifest.Path))
+                {
+                    continue;
+                }
+
+                using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, manifest.View))
+                using (var key = baseKey.OpenSubKey(ImplicitLayersKey))
+                {
+                    if (key == null || key.GetValue(manifest.Path) == null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static void Register(string installPath)
+        {
+            foreach (var manifest in GetManifests(installPath))
+            {
+                if (!File.Exists(manifest.Path))
+                {
+                    continue;
+                }
+
+                using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, manifest.View))
+                using (var key = baseKey.CreateSubKey(ImplicitLayersKey, true))
+                {
+                    // Remove stale registrations of our manifest from a previous install location.
+                    var fileName = Path.GetFileName(manifest.Path);
+                    foreach (var name in key.GetValueNames())
+                    {
+                        if (string.Equals(Path.GetFileName(name), fileName, StringComparison.OrdinalIgnoreCase) &&
+                            !string.Equals(name, manifest.Path, StringComparison.OrdinalIgnoreCase))
+                        {
+                            key.DeleteValue(name);
+                        }
+                    }
+
+                    key.SetValue(manifest.Path, 0, RegistryValueKind.DWord);
+                }
+            }
+        }
+
+        public static bool RegisterElevated(string installPath)
+        {
+            var processInfo = new ProcessStartInfo();
+            processInfo.Verb = "RunAs";
+            processInfo.FileName = Assembly.GetExecutingAssembly().Location;
+            processInfo.Arguments = "/register-openxr-layer \"" + installPath + "\"";
+            processInfo.UseShellExecute = true;
+            try
+            {
+                using (var process = Process.Start(processInfo))
+                {
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch (Win32Exception)
+            {
+                return false;
+            }
+        }
+    }
+}
