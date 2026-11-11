@@ -30,9 +30,7 @@ using System.Reflection;
 
 namespace DFR_UI
 {
-    // Registers the OpenXR API layer manifests as implicit layers for the OpenXR loader:
-    // HKLM\SOFTWARE\Khronos\OpenXR\1\ApiLayers\Implicit, one DWORD value per manifest (value name = full path to the
-    // JSON file, data 0 = enabled). The 32-bit manifest goes in the 32-bit registry view (WOW6432Node).
+    // Registers the OpenXR API layer manifests as implicit layers for the OpenXR loader.
     static class OpenXRLayer
     {
         const string ImplicitLayersKey = @"SOFTWARE\Khronos\OpenXR\1\ApiLayers\Implicit";

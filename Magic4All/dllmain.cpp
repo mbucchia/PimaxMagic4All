@@ -28,6 +28,8 @@ using namespace logging;
 #include <trackers.h>
 using namespace trackers;
 
+#include "openxr_layer.h"
+
 //
 // Log file helpers.
 //
@@ -130,6 +132,17 @@ namespace {
         } else {
             invertYAxis.store(false);
         }
+
+        // Horizontal stretch of the full-detail area for texture arrays, in percent (see openxr_layer.cpp).
+        retCode = ::RegGetValue(HKEY_CURRENT_USER,
+                                L"SOFTWARE\\FR-Utility",
+                                L"texture_array_stretch",
+                                RRF_SUBKEY_WOW6464KEY | RRF_RT_REG_DWORD,
+                                nullptr,
+                                &data,
+                                &dataSize);
+        openxr_layer::GetInstance().setTextureArrayStretch(retCode == ERROR_SUCCESS && data >= 100 ? data / 100.f
+                                                                                                   : 1.5f);
     }
 
     pvrResult emulate_initialise() {
@@ -384,6 +397,15 @@ namespace {
                 // Our gaze vector is normalized.
                 // This works well-enough.
                 outInfo->GazeTan[i] = {gaze.v[0], gaze.v[1]};
+            }
+
+            // Texture arrays (see openxr_layer.cpp): the horizontal FOV we reported was shrunk by this factor around
+            // this center. Do the same to the gaze, so it still lands on the same pixel.
+            if (const auto transform = openxr_layer::GetInstance().getTextureArrayGazeTransform()) {
+                for (uint32_t i = 0; i < 2; i++) {
+                    outInfo->GazeTan[i].x =
+                        transform->centerX + transform->scaleX * (outInfo->GazeTan[i].x - transform->centerX);
+                }
             }
 
             // Some applications (like Unity) may render the image upside-down.

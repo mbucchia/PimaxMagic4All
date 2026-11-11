@@ -28,9 +28,13 @@ namespace DFR_UI
                 }
             }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            // Held for the lifetime of the app. The OpenXR layer only loads LibMagic while this mutex exists.
+            using (var dfrUiRunning = new System.Threading.Mutex(false, "Local\\PimaxMagic4All-DFR-UI"))
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new MainForm());
+            }
             return 0;
         }
     }

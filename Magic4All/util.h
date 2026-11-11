@@ -30,6 +30,17 @@ namespace util {
         return fmt::format("({:.3f}, {:.3f}, {:.3f})", vec.v[0], vec.v[1], vec.v[2]);
     }
 
+    // Folder containing our DLL (it may be injected or loaded by the OpenXR loader from anywhere).
+    static inline std::filesystem::path GetModuleDirectory() {
+        HMODULE self = nullptr;
+        GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                           reinterpret_cast<LPCWSTR>(&GetModuleDirectory),
+                           &self);
+        wchar_t path[MAX_PATH]{};
+        GetModuleFileNameW(self, path, MAX_PATH);
+        return std::filesystem::path(path).parent_path();
+    }
+
     template <typename TMethod>
     void DetourDllAttach(const char* dll, const char* target, TMethod hooked, TMethod& original) {
         if (original) {

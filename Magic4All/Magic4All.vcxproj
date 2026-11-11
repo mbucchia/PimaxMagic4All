@@ -273,6 +273,7 @@ copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
     <ClInclude Include="resource.h" />
     <ClInclude Include="trackers.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="openxr_layer.h" />
     <ClInclude Include="openxr_loader_interfaces.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="util.h" />

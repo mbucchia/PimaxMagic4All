@@ -20,6 +20,9 @@
     <ClInclude Include="log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="openxr_layer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="openxr_loader_interfaces.h">
       <Filter>Header Files</Filter>
     </ClInclude>

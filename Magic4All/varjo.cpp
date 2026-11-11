@@ -36,9 +36,9 @@ namespace {
     namespace {
 
 #ifdef _WIN64
-        constexpr wchar_t VarjoLibName[] = L"VarjoLib.dll";
+        constexpr wchar_t k_VarjoLibName[] = L"VarjoLib.dll";
 #else
-        constexpr wchar_t VarjoLibName[] = L"VarjoLib32.dll";
+        constexpr wchar_t k_VarjoLibName[] = L"VarjoLib32.dll";
 #endif
 
         // Hook to fake the process ID.
@@ -50,7 +50,7 @@ namespace {
                                        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                                    (LPCSTR)_ReturnAddress(),
                                    &callerModule)) {
-                HMODULE libVarjo = GetModuleHandleW(VarjoLibName);
+                HMODULE libVarjo = GetModuleHandleW(k_VarjoLibName);
                 HMODULE libVarjoRuntime = GetModuleHandleA("VarjoRuntime.dll");
                 if (callerModule != libVarjo && callerModule != libVarjoRuntime) {
                     return g_original_GetCurrentProcessId();
@@ -64,20 +64,11 @@ namespace {
         // Our DLL is injected by full path, so the loader would not search our folder for it.
         // Load it explicitly from next to our DLL before the first Varjo call.
         bool LoadVarjoLib() {
-            if (GetModuleHandleW(VarjoLibName)) {
+            if (GetModuleHandleW(k_VarjoLibName)) {
                 return true;
             }
 
-            HMODULE self = nullptr;
-            if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
-                                        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                                    reinterpret_cast<LPCWSTR>(&LoadVarjoLib),
-                                    &self)) {
-                return false;
-            }
-            wchar_t selfPath[MAX_PATH]{};
-            GetModuleFileNameW(self, selfPath, MAX_PATH);
-            const auto varjoLibPath = std::filesystem::path(selfPath).parent_path() / VarjoLibName;
+            const auto varjoLibPath = GetModuleDirectory() / k_VarjoLibName;
             if (!LoadLibraryExW(varjoLibPath.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH)) {
                 Log(fmt::format("Failed to load {}: {}\n", varjoLibPath.string(), GetLastError()));
                 return false;

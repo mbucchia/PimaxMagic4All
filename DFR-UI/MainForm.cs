@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Valve.VR;
 
 namespace DFR_UI
 {
@@ -21,9 +20,6 @@ namespace DFR_UI
             InitializeComponent();
         }
 
-        CVRSystem VrSystem;
-        CVRApplications VrApplications;
-        CVRCompositor VrCompositor;
         string[] DllsToInject64;
         string[] DllsToInject32;
         uint AttachedApplication = 0;
@@ -98,48 +94,42 @@ namespace DFR_UI
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (VrSystem == null || VrApplications == null || VrCompositor == null)
+            // An OpenXR application (published by our API layer) works with any OpenXR runtime, and the layer loads
+            // LibMagic itself: no injection needed. On SteamVR, it is also the current scene application, so record it as
+            // attached to prevent the injection below.
+            var openXrApp = OpenXRApp.GetCurrent();
+            if (openXrApp != null)
             {
-                EVRInitError error = EVRInitError.Unknown;
-                VrSystem = OpenVR.Init(ref error, EVRApplicationType.VRApplication_Background);
-                if (VrSystem == null)
-                {
-                    appLabel.Text = "Not connected to SteamVR (" + error + ")";
-                    SetEnabled(false);
-                    return;
-                }
-
-                VrApplications = OpenVR.Applications;
-                VrCompositor = OpenVR.Compositor;
+                appLabel.Text = "Current application: " + openXrApp.ApplicationName + " (" + openXrApp.ProcessId + ", OpenXR)";
+                SetEnabled(true);
+                reattach.Enabled = false;
+                AttachedApplication = openXrApp.ProcessId;
             }
 
-            if (VrSystem != null && VrApplications != null && VrCompositor != null)
+            // Otherwise, the current SteamVR scene application. SteamVR is not required, so it not running is not an error.
+            var steamVrApp = SteamVRApp.GetCurrent();
+            if (openXrApp != null)
             {
-                uint pid = VrApplications.GetCurrentSceneProcessId();
-                if (pid > 0)
+                // Already handled above.
+            }
+            else if (steamVrApp != null)
+            {
+                if (steamVrApp.ProcessId != AttachedApplication)
                 {
-                    if (pid != AttachedApplication)
-                    {
-                        var sb = new StringBuilder((int)OpenVR.k_unMaxApplicationKeyLength);
-                        VrApplications.GetApplicationKeyByProcessId(pid, sb, OpenVR.k_unMaxApplicationKeyLength);
-                        var appKey = sb.ToString();
-                        EVRApplicationError error = EVRApplicationError.None;
-                        sb = new StringBuilder((int)OpenVR.k_unMaxPropertyStringSize);
-                        VrApplications.GetApplicationPropertyString(appKey, EVRApplicationProperty.Name_String, sb, OpenVR.k_unMaxPropertyStringSize, ref error);
-                        var appName = sb.ToString();
-                        appLabel.Text = "Current application: " + appName + " (" + pid + ")";
-                        SetEnabled(true);
+                    appLabel.Text = "Current application: " + steamVrApp.ApplicationName + " (" + steamVrApp.ProcessId + ", OpenVR)";
+                    SetEnabled(true);
 
-                        Attach(pid);
-                        AttachedApplication = pid;
-                    }
+                    Attach(steamVrApp.ProcessId);
+                    AttachedApplication = steamVrApp.ProcessId;
                 }
-                else
-                {
-                    appLabel.Text = "No SteamVR application is running";
-                    SetEnabled(false);
-                }
+            }
+            else
+            {
+                appLabel.Text = "No VR application is running";
+                SetEnabled(false);
+            }
 
+            {
                 var oldTextLength = log.TextLength;
                 try
                 {
@@ -157,13 +147,12 @@ namespace DFR_UI
                     log.SelectionStart = log.TextLength;
                     log.ScrollToCaret();
                 }
+            }
 
-                Compositor_FrameTiming timing = new Compositor_FrameTiming();
-                timing.m_nSize = (uint)System.Runtime.InteropServices.Marshal.SizeOf(typeof(Compositor_FrameTiming));
-                if (VrCompositor.GetFrameTiming(ref timing, 0) && timing.m_flPreSubmitGpuMs > 0.0001f)
-                {
-                    frameTimeLabel.Text = "Application GPU frame time: " + (timing.m_flPreSubmitGpuMs + timing.m_flPostSubmitGpuMs).ToString("#.#") + "ms\n(for informational purposes only)";
-                }
+            var frameTime = SteamVRApp.GetApplicationGpuFrameTime();
+            if (frameTime.HasValue)
+            {
+                frameTimeLabel.Text = "Application GPU frame time: " + frameTime.Value.ToString("#.#") + "ms\n(for informational purposes only)";
             }
         }
 
