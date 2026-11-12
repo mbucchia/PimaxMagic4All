@@ -175,7 +175,8 @@ namespace {
             }
         }
 
-        if (!openvrSystem) {
+        // For OpenXR applications, our API layer provides the projection to LibMagic instead.
+        if (!openvrSystem && !openxr_layer::GetInstance().isOpenXrApplication()) {
             Log("Unable to retrieve IVRSystem, projection may be inaccurate\n");
         }
 

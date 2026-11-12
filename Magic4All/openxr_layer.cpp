@@ -115,6 +115,10 @@ namespace {
             return GazeTransform{m_textureArrayCenterX.load(), m_textureArrayGazeScaleX.load()};
         }
 
+        bool isOpenXrApplication() const override {
+            return m_isOpenXrApplication.load();
+        }
+
         XrResult xrCreateSession(XrInstance instance, const XrSessionCreateInfo* createInfo, XrSession* session) {
             TraceLocalActivity(local);
             TraceLoggingWriteStart(local, "xrCreateSession");
@@ -320,6 +324,7 @@ namespace {
 #undef RESOLVE_NEXT_FUNCTION
 
             publishApplication(instanceCreateInfo->applicationInfo.applicationName);
+            m_isOpenXrApplication = true;
 
             return result;
         }
@@ -478,6 +483,8 @@ namespace {
 
         wil::unique_handle m_applicationInfoMapping;
         wil::unique_mapview_ptr<SharedApplicationInfo> m_applicationInfo;
+
+        std::atomic<bool> m_isOpenXrApplication = false;
 
         std::atomic<bool> m_isTextureArray = false;
         std::atomic<float> m_textureArrayStretch = 1.5f;

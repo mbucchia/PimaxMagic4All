@@ -20,6 +20,7 @@ namespace DFR_UI
             InitializeComponent();
         }
 
+        string InstallPath;
         string[] DllsToInject64;
         string[] DllsToInject32;
         uint AttachedApplication = 0;
@@ -31,6 +32,7 @@ namespace DFR_UI
 
             var assembly = Assembly.GetAssembly(GetType());
             var installPath = Path.GetDirectoryName(assembly.Location);
+            InstallPath = installPath;
 
             // Loaded into the game in this order. LibMagic loads "libPVRClient{64,32}.dll" by name, which resolves to our
             // copy because it is already loaded in the process.
@@ -53,7 +55,7 @@ namespace DFR_UI
             if (OpenXRLayer.NeedsRegistration(installPath))
             {
                 var result = MessageBox.Show(this, "To use Foveated Rendering with OpenXR applications, the OpenXR API layer must be registered.\n\nDo you want to register it now?", "OpenXR support", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.Yes && !OpenXRLayer.RegisterElevated(installPath))
+                if (result == DialogResult.Yes && !OpenXRLayer.SetEnabledElevated(installPath, true))
                 {
                     MessageBox.Show(this, "The OpenXR layer was not registered.", "OpenXR support", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
@@ -80,6 +82,9 @@ namespace DFR_UI
             }
             invertYAxis.Checked = (int)SettingsKey.GetValue("invert_y_axis", 0) == 0 ? false : true;
             forceFixed.Checked = (int)SettingsKey.GetValue("ignore_eye_tracking", 0) == 0 ? false : true;
+
+            ShowButtons(false);
+            UpdateOpenXrLayerToggle();
         }
 
         void SetEnabled(bool enabled)
@@ -92,6 +97,19 @@ namespace DFR_UI
             }
         }
 
+        // Re-attaching only applies to OpenVR applications (OpenXR applications are handled by our API layer). Otherwise
+        // show the OpenXR API layer toggle in the same spot.
+        void ShowButtons(bool isOpenVrApp)
+        {
+            reattach.Visible = isOpenVrApp;
+            openXrLayerToggle.Visible = !isOpenVrApp;
+        }
+
+        void UpdateOpenXrLayerToggle()
+        {
+            openXrLayerToggle.Text = OpenXRLayer.IsEnabled(InstallPath) ? "Disable OpenXR support" : "Enable OpenXR support";
+        }
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             // An OpenXR application (published by our API layer) works with any OpenXR runtime, and the layer loads
@@ -102,7 +120,7 @@ namespace DFR_UI
             {
                 appLabel.Text = "Current application: " + openXrApp.ApplicationName + " (" + openXrApp.ProcessId + ", OpenXR)";
                 SetEnabled(true);
-                reattach.Enabled = false;
+                ShowButtons(false);
                 AttachedApplication = openXrApp.ProcessId;
             }
 
@@ -114,6 +132,7 @@ namespace DFR_UI
             }
             else if (steamVrApp != null)
             {
+                ShowButtons(true);
                 if (steamVrApp.ProcessId != AttachedApplication)
                 {
                     appLabel.Text = "Current application: " + steamVrApp.ApplicationName + " (" + steamVrApp.ProcessId + ", OpenVR)";
@@ -127,7 +146,11 @@ namespace DFR_UI
             {
                 appLabel.Text = "No VR application is running";
                 SetEnabled(false);
+                ShowButtons(false);
             }
+
+            // The registration can also be changed by other tools.
+            UpdateOpenXrLayerToggle();
 
             {
                 var oldTextLength = log.TextLength;
@@ -202,6 +225,17 @@ namespace DFR_UI
         private void frDebug_CheckedChanged(object sender, EventArgs e)
         {
             SettingsKey.SetValue("mode", 4);
+        }
+
+        private void openXrLayerToggle_Click(object sender, EventArgs e)
+        {
+            // Takes effect for OpenXR applications started afterwards.
+            var enable = !OpenXRLayer.IsEnabled(InstallPath);
+            if (!OpenXRLayer.SetEnabledElevated(InstallPath, enable))
+            {
+                MessageBox.Show(this, "The OpenXR layer was not " + (enable ? "enabled" : "disabled") + ".", "OpenXR support", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            UpdateOpenXrLayerToggle();
         }
 
         private void reattach_Click(object sender, EventArgs e)

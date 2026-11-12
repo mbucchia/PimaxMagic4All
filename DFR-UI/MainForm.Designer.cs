@@ -36,6 +36,7 @@ namespace DFR_UI
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.appLabel = new System.Windows.Forms.Label();
             this.reattach = new System.Windows.Forms.Button();
+            this.openXrLayerToggle = new System.Windows.Forms.Button();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.labelMode = new System.Windows.Forms.Label();
             this.frOff = new System.Windows.Forms.RadioButton();
@@ -85,6 +86,7 @@ namespace DFR_UI
             // 
             this.flowLayoutPanel1.Controls.Add(this.appLabel);
             this.flowLayoutPanel1.Controls.Add(this.reattach);
+            this.flowLayoutPanel1.Controls.Add(this.openXrLayerToggle);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(2, 2);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
@@ -99,7 +101,7 @@ namespace DFR_UI
             this.appLabel.Name = "appLabel";
             this.appLabel.Size = new System.Drawing.Size(300, 43);
             this.appLabel.TabIndex = 0;
-            this.appLabel.Text = "Not connected to SteamVR";
+            this.appLabel.Text = "No VR application is running";
             this.appLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // reattach
@@ -112,7 +114,17 @@ namespace DFR_UI
             this.reattach.Text = "Try Re-Attach";
             this.reattach.UseVisualStyleBackColor = true;
             this.reattach.Click += new System.EventHandler(this.reattach_Click);
-            // 
+            //
+            // openXrLayerToggle
+            //
+            this.openXrLayerToggle.Location = new System.Drawing.Point(448, 3);
+            this.openXrLayerToggle.Name = "openXrLayerToggle";
+            this.openXrLayerToggle.Size = new System.Drawing.Size(130, 42);
+            this.openXrLayerToggle.TabIndex = 2;
+            this.openXrLayerToggle.Text = "Enable OpenXR support";
+            this.openXrLayerToggle.UseVisualStyleBackColor = true;
+            this.openXrLayerToggle.Click += new System.EventHandler(this.openXrLayerToggle_Click);
+            //
             // flowLayoutPanel2
             // 
             this.flowLayoutPanel2.Controls.Add(this.labelMode);
@@ -290,6 +302,7 @@ namespace DFR_UI
         private System.Windows.Forms.RadioButton frDebug;
         private System.Windows.Forms.Label appLabel;
         private System.Windows.Forms.Button reattach;
+        private System.Windows.Forms.Button openXrLayerToggle;
         private System.Windows.Forms.TextBox log;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.CheckBox forceFixed;

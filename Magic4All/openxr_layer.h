@@ -34,6 +34,9 @@ namespace openxr_layer {
 
         virtual void setTextureArrayStretch(float stretch) = 0;
         virtual std::optional<GazeTransform> getTextureArrayGazeTransform() const = 0;
+
+        // True once an OpenXR instance was created through our layer (as opposed to an OpenVR application).
+        virtual bool isOpenXrApplication() const = 0;
     };
 
     IOpenXrLayer& GetInstance();

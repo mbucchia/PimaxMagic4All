@@ -68,7 +68,32 @@ namespace DFR_UI
             return false;
         }
 
-        public static void Register(string installPath)
+        // Returns true if all our manifests are registered and enabled (value 0).
+        public static bool IsEnabled(string installPath)
+        {
+            foreach (var manifest in GetManifests(installPath))
+            {
+                if (!File.Exists(manifest.Path))
+                {
+                    continue;
+                }
+
+                using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, manifest.View))
+                using (var key = baseKey.OpenSubKey(ImplicitLayersKey))
+                {
+                    var value = key?.GetValue(manifest.Path);
+                    if (!(value is int) || (int)value != 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Registers our manifests (if needed) as enabled (value 0) or disabled (value 1). Requires administrator
+        // privileges.
+        public static void SetEnabled(string installPath, bool enabled)
         {
             foreach (var manifest in GetManifests(installPath))
             {
@@ -91,17 +116,19 @@ namespace DFR_UI
                         }
                     }
 
-                    key.SetValue(manifest.Path, 0, RegistryValueKind.DWord);
+                    key.SetValue(manifest.Path, enabled ? 0 : 1, RegistryValueKind.DWord);
                 }
             }
         }
 
-        public static bool RegisterElevated(string installPath)
+        // Runs SetEnabled() in an elevated copy of this executable (UAC prompt). Returns false if the user declined the
+        // elevation or the operation failed.
+        public static bool SetEnabledElevated(string installPath, bool enabled)
         {
             var processInfo = new ProcessStartInfo();
             processInfo.Verb = "RunAs";
             processInfo.FileName = Assembly.GetExecutingAssembly().Location;
-            processInfo.Arguments = "/register-openxr-layer \"" + installPath + "\"";
+            processInfo.Arguments = "/set-openxr-layer \"" + installPath + "\" " + (enabled ? "enable" : "disable");
             processInfo.UseShellExecute = true;
             try
             {

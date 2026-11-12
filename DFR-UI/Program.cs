@@ -14,16 +14,16 @@ namespace DFR_UI
         [STAThread]
         static int Main(string[] args)
         {
-            if (args.Length == 2 && args[0] == "/register-openxr-layer")
+            if (args.Length == 3 && args[0] == "/set-openxr-layer")
             {
                 try
                 {
-                    OpenXRLayer.Register(args[1]);
+                    OpenXRLayer.SetEnabled(args[1], args[2] == "enable");
                     return 0;
                 }
                 catch (Exception exc)
                 {
-                    MessageBox.Show("Failed to register the OpenXR layer: " + exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Failed to update the OpenXR layer: " + exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return 1;
                 }
             }
