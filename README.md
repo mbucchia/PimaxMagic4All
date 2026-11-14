@@ -18,8 +18,6 @@ Download the Foveated Rendering Utility from the [Releases](https://github.com/m
 
 Please refer to the wiki for additional steps specific to your headset in order to enable eye tracking (when applicable).
 
-Eye tracking can also come from an app that sends VRChat OSC gaze (`/tracking/eye/LeftRightPitchYaw`) to UDP port 9020 on this PC. Supported apps: EyeTrackVR and Baballonia
-
 ## Running
 
 Double-click `DFR-UI.exe`.
@@ -59,3 +57,4 @@ You probably don't need to do this, but just in case Pimax publishes significant
 - Tymon Lindell (Ridge): Adding support for the Bigscreen Beyond 2e.
 - VanishedMC: Beta testing on Bigscreen Beyond 2e and with Baballonia.
 - Bevergames2018: Improving support for Baballonia.
+- James H (Prohurtz): Adding support for the EyeTrackVR application.
