@@ -18,6 +18,8 @@ Download the Foveated Rendering Utility from the [Releases](https://github.com/m
 
 Please refer to the wiki for additional steps specific to your headset in order to enable eye tracking (when applicable).
 
+Eye tracking can also come from an app that sends VRChat OSC gaze (`/tracking/eye/LeftRightPitchYaw`) to UDP port 9020 on this PC. Supported apps: EyeTrackVR and Baballonia
+
 ## Running
 
 Double-click `DFR-UI.exe`.

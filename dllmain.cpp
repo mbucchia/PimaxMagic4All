@@ -170,7 +170,7 @@ namespace {
 
         eyeTracker.reset();
 
-        // VRChat OSC checks if Baballonia app is running using a mutex.
+        // VRChat OSC checks if a known gaze publisher (Baballonia, EyeTrackVR) is running using a mutex.
         eyeTracker = !eyeTracker ? createVRChatOSCEyeTracker() : std::move(eyeTracker);
 
         // Varjo only loads if Varjo Base is running.
