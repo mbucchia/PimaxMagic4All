@@ -38,14 +38,31 @@ namespace {
     using namespace logging;
     using namespace trackers;
 
+    // Apps that send VRChat OSC gaze to port 9020. Each one holds a named mutex while it is running, so we only open
+    // the port when one of them is there.
+    struct OSCGazePublisher {
+        const wchar_t* mutexName;
+        const char* name;
+    };
+    constexpr OSCGazePublisher OSCGazePublishers[] = {
+        {L"Local\\baballonia-unique-id", "Baballonia"},
+        {L"Local\\eyetrackvr-osc-gaze", "EyeTrackVR"},
+    };
+
     struct VRChatOSCEyeTracker : IEyeTracker, osc::OscPacketListener {
         // VRChat's packets run over port 9000. This can be set to other ports if the software supports, we're using
         // port 9020 here.
         VRChatOSCEyeTracker() {
-            wil::unique_handle mutex;
-            *mutex.put() = OpenMutexW(SYNCHRONIZE, FALSE, L"Local\\baballonia-unique-id");
-            if (!mutex) {
-                TraceLoggingWrite(g_traceProvider, "VRChatOSCEyeTracker_NoBaballoniaService");
+            for (const auto& publisher : OSCGazePublishers) {
+                wil::unique_handle mutex;
+                *mutex.put() = OpenMutexW(SYNCHRONIZE, FALSE, publisher.mutexName);
+                if (mutex) {
+                    m_publisher = publisher.name;
+                    break;
+                }
+            }
+            if (!m_publisher) {
+                TraceLoggingWrite(g_traceProvider, "VRChatOSCEyeTracker_NoPublisherService");
                 throw EyeTrackerNotSupportedException();
             }
 
@@ -82,7 +99,7 @@ namespace {
         }
 
         std::string getType() const override {
-            return "VRChat OSC";
+            return fmt::format("VRChat OSC ({})", m_publisher);
         }
 
         void ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint) override {
@@ -129,6 +146,7 @@ namespace {
             }
         }
 
+        const char* m_publisher{nullptr};
         bool m_started{false};
         std::thread m_listeningThread;
         std::unique_ptr<UdpListeningReceiveSocket> m_socket;
