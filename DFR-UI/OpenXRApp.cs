@@ -35,15 +35,24 @@ namespace DFR_UI
         const uint Version = 1;
         const int ApplicationNameSize = 128; // XR_MAX_APPLICATION_NAME_SIZE
 
-        // Layout: uint32 version, uint32 processId (0 while not valid), char applicationName[128] (UTF-8).
+        // Layout: uint32 version, uint32 processId (0 while not valid), char applicationName[128] (UTF-8), then
+        // cumulative statistics: uint64 cpuFrameTimeSumUs, uint64 gpuFrameTimeSumUs, uint32 cpuFrameTimeSamples,
+        // uint32 gpuFrameTimeSamples, uint32 framesSubmitted, uint32 reserved.
         const long VersionOffset = 0;
         const long ProcessIdOffset = 4;
         const long ApplicationNameOffset = 8;
+        const long CpuFrameTimeSumOffset = ApplicationNameOffset + ApplicationNameSize;
+        const long GpuFrameTimeSumOffset = CpuFrameTimeSumOffset + 8;
+        const long CpuFrameTimeSamplesOffset = GpuFrameTimeSumOffset + 8;
+        const long GpuFrameTimeSamplesOffset = CpuFrameTimeSamplesOffset + 4;
+        const long FramesSubmittedOffset = GpuFrameTimeSamplesOffset + 4;
+        const long Size = FramesSubmittedOffset + 8;
 
         public class Info
         {
             public uint ProcessId;
             public string ApplicationName;
+            public PerformanceSnapshot Performance;
         }
 
         // Returns the running OpenXR application, or null. The mapping is opened and closed on every call, so that it
@@ -53,7 +62,7 @@ namespace DFR_UI
             try
             {
                 using (var mapping = MemoryMappedFile.OpenExisting(MappingName, MemoryMappedFileRights.Read))
-                using (var view = mapping.CreateViewAccessor(0, ApplicationNameOffset + ApplicationNameSize, MemoryMappedFileAccess.Read))
+                using (var view = mapping.CreateViewAccessor(0, Size, MemoryMappedFileAccess.Read))
                 {
                     if (view.ReadUInt32(VersionOffset) != Version)
                     {
@@ -75,10 +84,22 @@ namespace DFR_UI
                     {
                     }
 
+                    // The layer updates each sum before its sample count, so read the counts first.
+                    var performance = new PerformanceSnapshot
+                    {
+                        ProcessId = processId,
+                        FramesSubmitted = view.ReadUInt32(FramesSubmittedOffset),
+                        CpuFrameTimeSamples = view.ReadUInt32(CpuFrameTimeSamplesOffset),
+                        GpuFrameTimeSamples = view.ReadUInt32(GpuFrameTimeSamplesOffset),
+                    };
+                    performance.CpuFrameTimeSumMs = view.ReadUInt64(CpuFrameTimeSumOffset) / 1000.0;
+                    performance.GpuFrameTimeSumMs = view.ReadUInt64(GpuFrameTimeSumOffset) / 1000.0;
+
                     return new Info
                     {
                         ProcessId = processId,
-                        ApplicationName = Encoding.UTF8.GetString(name, 0, length >= 0 ? length : name.Length)
+                        ApplicationName = Encoding.UTF8.GetString(name, 0, length >= 0 ? length : name.Length),
+                        Performance = performance
                     };
                 }
             }

@@ -24,6 +24,7 @@ namespace DFR_UI
         string[] DllsToInject64;
         string[] DllsToInject32;
         uint AttachedApplication = 0;
+        readonly PerformanceCounter Performance = new PerformanceCounter();
         Microsoft.Win32.RegistryKey SettingsKey;
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -172,10 +173,44 @@ namespace DFR_UI
                 }
             }
 
-            var frameTime = SteamVRApp.GetApplicationGpuFrameTime();
-            if (frameTime.HasValue)
+            // OpenXR applications are measured by our API layer (works with any runtime), OpenVR ones by SteamVR.
+            PerformanceSnapshot? snapshot = null;
+            if (openXrApp != null)
             {
-                frameTimeLabel.Text = "Application GPU frame time: " + frameTime.Value.ToString("#.#") + "ms\n(for informational purposes only)";
+                snapshot = openXrApp.Performance;
+            }
+            else if (steamVrApp != null)
+            {
+                snapshot = SteamVRApp.GetApplicationPerformance(steamVrApp.ProcessId);
+            }
+
+            var averages = new PerformanceAverages();
+            if (snapshot.HasValue)
+            {
+                averages = Performance.Update(snapshot.Value);
+            }
+            else
+            {
+                Performance.Reset();
+            }
+
+            if (averages.FrameRate.HasValue)
+            {
+                // Frame times are only available if the application rendered frames since the last refresh.
+                var stats = new List<string> { averages.FrameRate.Value.ToString("0.0") + " FPS" };
+                if (averages.GpuFrameTime.HasValue)
+                {
+                    stats.Add(averages.GpuFrameTime.Value.ToString("0.0") + "ms GPU");
+                }
+                if (averages.CpuFrameTime.HasValue)
+                {
+                    stats.Add(averages.CpuFrameTime.Value.ToString("0.0") + "ms CPU");
+                }
+                frameTimeLabel.Text = "Application performance: " + string.Join(", ", stats) + "\n(for informational purposes only)";
+            }
+            else
+            {
+                frameTimeLabel.Text = "";
             }
         }
 

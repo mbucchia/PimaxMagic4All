@@ -27,6 +27,7 @@
 
 #include "log.h"
 #include "util.h"
+#include "gpu_timer.h"
 #include "openxr_layer.h"
 
 // OpenXR functions that we call but do not intercept.
@@ -66,8 +67,20 @@ namespace {
         uint32_t version;
         uint32_t processId; // Written last, 0 while not valid.
         char applicationName[XR_MAX_APPLICATION_NAME_SIZE];
+
+        // Cumulative statistics: DFR-UI averages over its refresh interval from the difference between two reads.
+        // Each sum is updated before its sample count, and the 64-bit sums are naturally aligned for atomic access.
+        uint64_t cpuFrameTimeSumUs; // Between xrBeginFrame() and xrEndFrame().
+        uint64_t gpuFrameTimeSumUs;
+        uint32_t cpuFrameTimeSamples;
+        uint32_t gpuFrameTimeSamples;
+        uint32_t framesSubmitted;
+        uint32_t reserved;
     };
-    static_assert(sizeof(SharedApplicationInfo) == 8 + XR_MAX_APPLICATION_NAME_SIZE);
+    static_assert(offsetof(SharedApplicationInfo, cpuFrameTimeSumUs) == 8 + XR_MAX_APPLICATION_NAME_SIZE);
+    static_assert(sizeof(SharedApplicationInfo) == 8 + XR_MAX_APPLICATION_NAME_SIZE + 32);
+
+    constexpr uint32_t k_NumGpuTimers = 3;
 
     bool IsDfrUiRunning() {
         wil::unique_handle mutex;
@@ -95,6 +108,7 @@ namespace {
                                              XrSession* session);
     XrResult XRAPI_CALL hook_xrDestroySession(XrSession session);
     XrResult XRAPI_CALL hook_xrBeginSession(XrSession session, const XrSessionBeginInfo* beginInfo);
+    XrResult XRAPI_CALL hook_xrBeginFrame(XrSession session, const XrFrameBeginInfo* frameBeginInfo);
     XrResult XRAPI_CALL hook_xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo);
 
     class OpenXrLayer : public IOpenXrLayer {
@@ -136,6 +150,12 @@ namespace {
                     m_session = *session;
                     m_d3d11Device = reinterpret_cast<const XrGraphicsBindingD3D11KHR*>(entry)->device;
 
+                    for (uint32_t i = 0; i < k_NumGpuTimers; i++) {
+                        m_gpuTimers[i] = D3D11GpuTimer::Create(m_d3d11Device);
+                    }
+                    m_currentGpuTimer = 0;
+                    m_isGpuTimerRunning = false;
+
                     // Make sure LibMagic starts in OpenXR mode (no OpenVR hooks), however it ends up being loaded.
                     SetEnvironmentVariableW(L"VR_TYPE", L"openxr");
 
@@ -160,6 +180,11 @@ namespace {
                 if (session == m_session) {
                     m_session = XR_NULL_HANDLE;
                     m_d3d11Device = nullptr;
+                    for (uint32_t i = 0; i < k_NumGpuTimers; i++) {
+                        m_gpuTimers[i].reset();
+                    }
+                    m_isGpuTimerRunning = false;
+                    m_frameBeginTime.reset();
                     m_isStereoSession = false;
                 }
             }
@@ -191,12 +216,52 @@ namespace {
             return result;
         }
 
+        XrResult xrBeginFrame(XrSession session, const XrFrameBeginInfo* frameBeginInfo) {
+            TraceLocalActivity(local);
+            TraceLoggingWriteStart(local, "xrBeginFrame");
+
+            const XrResult result = m_xrBeginFrame(session, frameBeginInfo);
+            if (XR_SUCCEEDED(result)) {
+                std::unique_lock lock(m_mutex);
+
+                if (session == m_session) {
+                    // The application renders between xrBeginFrame() and xrEndFrame(). We do not measure from
+                    // xrWaitFrame(): pipelined applications (e.g. Unreal, XrSceneLib) call it from another thread, ahead
+                    // of rendering, which would measure their pipeline latency instead. A frame that was never ended
+                    // (XR_FRAME_DISCARDED) is simply restarted here.
+                    m_frameBeginTime = std::chrono::steady_clock::now();
+
+                    startGpuTimer();
+                }
+            }
+
+            TraceLoggingWriteStop(local, "xrBeginFrame", TLArg((int)result, "Result"));
+            return result;
+        }
+
         XrResult xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo) {
             TraceLocalActivity(local);
             TraceLoggingWriteStart(local, "xrEndFrame");
 
+            const auto now = std::chrono::steady_clock::now();
             {
                 std::unique_lock lock(m_mutex);
+
+                // See xrBeginFrame().
+                if (session == m_session && m_frameBeginTime) {
+                    const auto cpuFrameTimeUs =
+                        std::chrono::duration_cast<std::chrono::microseconds>(now - *m_frameBeginTime).count();
+                    publishCpuFrameTime(static_cast<uint64_t>(cpuFrameTimeUs));
+                    TraceLoggingWriteTagged(local, "xrEndFrame", TLArg(cpuFrameTimeUs, "AppCpuFrameTimeUs"));
+                    m_frameBeginTime.reset();
+                }
+
+                if (session == m_session && m_isGpuTimerRunning) {
+                    m_gpuTimers[m_currentGpuTimer]->stop();
+                    m_isGpuTimerRunning = false;
+                    m_currentGpuTimer = (m_currentGpuTimer + 1) % k_NumGpuTimers;
+                }
+
                 if (session == m_session && m_isStereoSession) {
                     tryLoadLibMagic();
 
@@ -283,6 +348,10 @@ namespace {
             }
 
             const XrResult result = m_xrEndFrame(session, frameEndInfo);
+            if (XR_SUCCEEDED(result)) {
+                std::unique_lock lock(m_mutex);
+                countFrameSubmitted();
+            }
 
             TraceLoggingWriteStop(local, "xrEndFrame", TLArg((int)result, "Result"));
             return result;
@@ -353,6 +422,9 @@ namespace {
                 } else if (apiName == "xrBeginSession") {
                     m_xrBeginSession = reinterpret_cast<PFN_xrBeginSession>(*function);
                     *function = reinterpret_cast<PFN_xrVoidFunction>(hook_xrBeginSession);
+                } else if (apiName == "xrBeginFrame") {
+                    m_xrBeginFrame = reinterpret_cast<PFN_xrBeginFrame>(*function);
+                    *function = reinterpret_cast<PFN_xrVoidFunction>(hook_xrBeginFrame);
                 } else if (apiName == "xrEndFrame") {
                     m_xrEndFrame = reinterpret_cast<PFN_xrEndFrame>(*function);
                     *function = reinterpret_cast<PFN_xrVoidFunction>(hook_xrEndFrame);
@@ -424,8 +496,57 @@ namespace {
             InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_applicationInfo->processId), 0);
             m_applicationInfo->version = k_ApplicationInfoVersion;
             strncpy_s(m_applicationInfo->applicationName, applicationName, _TRUNCATE);
+            InterlockedExchange64(reinterpret_cast<volatile LONG64*>(&m_applicationInfo->cpuFrameTimeSumUs), 0);
+            InterlockedExchange64(reinterpret_cast<volatile LONG64*>(&m_applicationInfo->gpuFrameTimeSumUs), 0);
+            InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_applicationInfo->cpuFrameTimeSamples), 0);
+            InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_applicationInfo->gpuFrameTimeSamples), 0);
+            InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_applicationInfo->framesSubmitted), 0);
             InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_applicationInfo->processId),
                                 static_cast<LONG>(GetCurrentProcessId()));
+        }
+
+        void publishGpuFrameTime(uint64_t gpuFrameTimeUs) {
+            if (m_applicationInfo && m_applicationInfo->processId == GetCurrentProcessId()) {
+                addSample(m_applicationInfo->gpuFrameTimeSumUs, m_applicationInfo->gpuFrameTimeSamples, gpuFrameTimeUs);
+            }
+        }
+
+        static void addSample(uint64_t& sum, uint32_t& samples, uint64_t value) {
+            InterlockedExchangeAdd64(reinterpret_cast<volatile LONG64*>(&sum), static_cast<LONG64>(value));
+            InterlockedIncrement(reinterpret_cast<volatile LONG*>(&samples));
+        }
+
+        // Collects the oldest GPU timer and reuses it for the frame starting now.
+        void startGpuTimer() {
+            if (!m_gpuTimers[0]) {
+                return;
+            }
+
+            if (m_isGpuTimerRunning) {
+                // The previous frame was never ended (discarded frame): restart the same timer.
+                m_gpuTimers[m_currentGpuTimer]->stop();
+            } else {
+                const uint64_t gpuFrameTimeUs = m_gpuTimers[m_currentGpuTimer]->query();
+                if (gpuFrameTimeUs) {
+                    publishGpuFrameTime(gpuFrameTimeUs);
+                    TraceLoggingWrite(g_traceProvider, "GpuFrameTime", TLArg(gpuFrameTimeUs, "AppGpuFrameTimeUs"));
+                }
+            }
+
+            m_gpuTimers[m_currentGpuTimer]->start();
+            m_isGpuTimerRunning = true;
+        }
+
+        void publishCpuFrameTime(uint64_t cpuFrameTimeUs) {
+            if (m_applicationInfo && m_applicationInfo->processId == GetCurrentProcessId()) {
+                addSample(m_applicationInfo->cpuFrameTimeSumUs, m_applicationInfo->cpuFrameTimeSamples, cpuFrameTimeUs);
+            }
+        }
+
+        void countFrameSubmitted() {
+            if (m_applicationInfo && m_applicationInfo->processId == GetCurrentProcessId()) {
+                InterlockedIncrement(reinterpret_cast<volatile LONG*>(&m_applicationInfo->framesSubmitted));
+            }
         }
 
         void unpublishApplication() {
@@ -460,6 +581,7 @@ namespace {
         PFN_xrCreateSession m_xrCreateSession = nullptr;
         PFN_xrDestroySession m_xrDestroySession = nullptr;
         PFN_xrBeginSession m_xrBeginSession = nullptr;
+        PFN_xrBeginFrame m_xrBeginFrame = nullptr;
         PFN_xrEndFrame m_xrEndFrame = nullptr;
         PFN_xrDestroyInstance m_xrDestroyInstance = nullptr;
 
@@ -474,6 +596,14 @@ namespace {
         // Immutable session state that we need toinject (or not).
         ID3D11Device* m_d3d11Device = nullptr;
         bool m_isStereoSession = false;
+
+        // Application GPU frame time.
+        std::unique_ptr<D3D11GpuTimer> m_gpuTimers[k_NumGpuTimers];
+        uint32_t m_currentGpuTimer = 0;
+        bool m_isGpuTimerRunning = false;
+
+        // Application CPU frame time: when the current frame was begun.
+        std::optional<std::chrono::steady_clock::time_point> m_frameBeginTime;
 
         // LibMagic.
         bool m_libMagicLoadAttempted = false;
@@ -558,6 +688,10 @@ namespace {
 
     XrResult XRAPI_CALL hook_xrBeginSession(XrSession session, const XrSessionBeginInfo* beginInfo) {
         return OpenXrLayer::Get().xrBeginSession(session, beginInfo);
+    }
+
+    XrResult XRAPI_CALL hook_xrBeginFrame(XrSession session, const XrFrameBeginInfo* frameBeginInfo) {
+        return OpenXrLayer::Get().xrBeginFrame(session, frameBeginInfo);
     }
 
     XrResult XRAPI_CALL hook_xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo) {

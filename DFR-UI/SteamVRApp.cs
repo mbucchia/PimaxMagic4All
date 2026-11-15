@@ -83,22 +83,32 @@ namespace DFR_UI
             };
         }
 
-        // Returns the application GPU frame time in milliseconds, or null if not available. Does not try to connect
-        // (GetCurrent() does).
-        public static float? GetApplicationGpuFrameTime()
+        // Returns the cumulative statistics of the current scene application, or null if not available. Does not try
+        // to connect (GetCurrent() does).
+        public static PerformanceSnapshot? GetApplicationPerformance(uint processId)
         {
             if (VrCompositor == null)
             {
                 return null;
             }
 
-            Compositor_FrameTiming timing = new Compositor_FrameTiming();
-            timing.m_nSize = (uint)Marshal.SizeOf(typeof(Compositor_FrameTiming));
-            if (!VrCompositor.GetFrameTiming(ref timing, 0) || timing.m_flPreSubmitGpuMs <= 0.0001f)
+            Compositor_CumulativeStats stats = new Compositor_CumulativeStats();
+            VrCompositor.GetCumulativeStats(ref stats, (uint)Marshal.SizeOf(typeof(Compositor_CumulativeStats)));
+            if (stats.m_nPid != processId)
             {
                 return null;
             }
-            return timing.m_flPreSubmitGpuMs + timing.m_flPostSubmitGpuMs;
+
+            // SteamVR sums the frame times over all submitted frames.
+            return new PerformanceSnapshot
+            {
+                ProcessId = processId,
+                FramesSubmitted = stats.m_nNumFrameSubmits,
+                CpuFrameTimeSumMs = stats.m_flSumApplicationCPUTimeMS,
+                CpuFrameTimeSamples = stats.m_nNumFrameSubmits,
+                GpuFrameTimeSumMs = stats.m_flSumApplicationGPUTimeMS,
+                GpuFrameTimeSamples = stats.m_nNumFrameSubmits
+            };
         }
     }
 }
