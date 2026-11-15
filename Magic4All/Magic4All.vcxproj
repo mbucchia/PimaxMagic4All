@@ -102,7 +102,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -140,7 +140,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -187,7 +187,7 @@ copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -229,7 +229,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include;$(SolutionDir)\external\OpenXR-MixedReality\Shared\XrUtility</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -281,6 +281,7 @@ copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="openvr.cpp" />
+    <ClCompile Include="openxr.cpp" />
     <ClCompile Include="openxr_layer.cpp" />
     <ClCompile Include="varjo.cpp" />
     <ClCompile Include="vrchat_osc.cpp" />

@@ -52,6 +52,9 @@
     <ClCompile Include="openvr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="openxr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="openxr_layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

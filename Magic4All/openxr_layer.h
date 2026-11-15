@@ -37,6 +37,9 @@ namespace openxr_layer {
 
         // True once an OpenXR instance was created through our layer (as opposed to an OpenVR application).
         virtual bool isOpenXrApplication() const = 0;
+
+        virtual bool isEyeGazeSupported() const = 0;
+        virtual std::optional<XrPosef> getEyeGaze() const = 0;
     };
 
     IOpenXrLayer& GetInstance();

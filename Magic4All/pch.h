@@ -71,6 +71,9 @@
 #include <openxr/openxr_platform.h>
 #include <openxr/openxr_reflection.h>
 #include "openxr_loader_interfaces.h"
+#include <XrMath.h>
+#include <XrStereoView.h>
+#include <XrToString.h>
 
 // OpenVR
 #include <openvr.h>

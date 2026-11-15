@@ -42,5 +42,6 @@ namespace trackers {
     std::unique_ptr<IEyeTracker> createOpenVrEyeTracker(vr::IVRSystem* system);
     std::unique_ptr<IEyeTracker> createVarjoEyeTracker();
     std::unique_ptr<IEyeTracker> createVRChatOSCEyeTracker();
+    std::unique_ptr<IEyeTracker> createOpenXrEyeTracker();
 
 } // namespace trackers

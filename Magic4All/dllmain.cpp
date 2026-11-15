@@ -187,13 +187,16 @@ namespace {
         // VRChat OSC checks if a known gaze publisher (Baballonia, EyeTrackVR) is running using a mutex.
         eyeTracker = !eyeTracker ? createVRChatOSCEyeTracker() : std::move(eyeTracker);
 
-        // Varjo only loads if Varjo Base is running.
-        eyeTracker = !eyeTracker ? createVarjoEyeTracker() : std::move(eyeTracker);
+        // OpenXR only loads if our API layer found XR_EXT_eye_gaze_interaction support.
+        eyeTracker = !eyeTracker ? createOpenXrEyeTracker() : std::move(eyeTracker);
 
         if (openvrSystem) {
             // OpenVR only loads if Prop_SupportsXrEyeGazeInteraction_Bool is set to True.
             eyeTracker = !eyeTracker ? createOpenVrEyeTracker(openvrSystem) : std::move(eyeTracker);
         }
+
+        // Varjo only loads if Varjo Base is running.
+        eyeTracker = !eyeTracker ? createVarjoEyeTracker() : std::move(eyeTracker);
 
         if (eyeTracker) {
             TraceLoggingWrite(g_traceProvider, "EyeTracker", TLArg(eyeTracker->getType().c_str(), "Type"));
@@ -412,7 +415,7 @@ namespace {
             // Some applications (like Unity) may render the image upside-down.
             if (invertYAxis.load()) {
                 for (uint32_t i = 0; i < 2; i++) {
-                    outInfo->GazeTan[i].y = -outInfo->GazeTan[i].y - 0.5f;
+                    outInfo->GazeTan[i].y = -outInfo->GazeTan[i].y;
                 }
             }
 
