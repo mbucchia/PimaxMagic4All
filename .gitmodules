@@ -5,7 +5,7 @@
 	path = external/Varjo
 	url = https://github.com/mbucchia/Varjo-SDK.git
 [submodule "tests/directx11_hellovr"]
-	path = tests/directx11_hellovr
+	path = external/directx11_hellovr
 	url = https://github.com/mbucchia/directx11_hellovr.git
 [submodule "external/oscpack"]
 	path = external/oscpack
@@ -16,3 +16,10 @@
 [submodule "external/openvr"]
 	path = external/openvr
 	url = https://github.com/ValveSoftware/openvr.git
+[submodule "tests/OpenXR-MixedReality"]
+	path = external/OpenXR-MixedReality
+	url = https://github.com/mbucchia/OpenXR-MixedReality.git
+	branch = virtualdesktop-openxr
+[submodule "tests/OpenXR-SDK"]
+	path = external/OpenXR-SDK
+	url = https://github.com/KhronosGroup/OpenXR-SDK.git

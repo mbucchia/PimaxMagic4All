@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\OpenXR.1.1.47\build\native\openxr.props" Condition="Exists('..\packages\OpenXR.1.1.47\build\native\openxr.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -103,7 +102,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -141,7 +140,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -188,7 +187,7 @@ copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -230,7 +229,7 @@ $(SolutionDir)\signing\signtool.exe sign /d "PvrEmu" /du "https://github.com/mbu
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)\external\fmt\include;$(SolutionDir)\external\PVR;$(SolutionDir)\external\openvr\headers;$(SolutionDir)\external\Varjo\include;$(SolutionDir)\external\oscpack;$(SolutionDir)\external\OpenXR-SDK\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -304,7 +303,6 @@ copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets" Condition="Exists('$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets')" />
     <Import Project="$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="..\packages\OpenXR.1.1.47\build\native\openxr.targets" Condition="Exists('..\packages\OpenXR.1.1.47\build\native\openxr.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -312,7 +310,5 @@ copy $(OutDir)\Magic4All-32.json $(SolutionDir)\bin\x64\$(Configuration)\
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\Detours.4.0.1\build\native\Detours.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)packages\Microsoft.Windows.ImplementationLibrary.1.0.260126.7\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
-    <Error Condition="!Exists('..\packages\OpenXR.1.1.47\build\native\openxr.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenXR.1.1.47\build\native\openxr.props'))" />
-    <Error Condition="!Exists('..\packages\OpenXR.1.1.47\build\native\openxr.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OpenXR.1.1.47\build\native\openxr.targets'))" />
   </Target>
 </Project>
